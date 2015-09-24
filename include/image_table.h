@@ -2,6 +2,10 @@
 #define IMAGE_TABLE_H_
 
 #include <string>
+#include <vector>
+#include <iostream>
+
+using namespace std;
 
 //to do: modify "int" to define image data type
 typedef int ImageType; //the "int" here is just for sucessful compilation. use the image type you prefer to replace it
@@ -27,11 +31,12 @@ struct ImageEntry{
 //******** image lookup table
 class ImageTable{
 public:
-	vector <ImageEntry> images_;
+	vector <ImageEntry *> images_;
 
 public:
 	ImageTable();
 	ImageTable(string path);
+	~ImageTable();
 
 	void LoadImages(string path);
 
