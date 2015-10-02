@@ -73,7 +73,7 @@ void Tree::BuildTree(int depth, Node* cur_node)
 
 		RandomSample(u,v);
 
-		for(int iter2; iter2<SAMPLE_THRESHOLD_NUM; iter2++){
+		for(int iter2=0; iter2<SAMPLE_THRESHOLD_NUM; iter2++){
 			RandomSample(threshold);
 			for(int i=0; i<cur_node->pixels_.size(); i++){
 				if(FeatureValue(cur_node->pixels_.at(i), u, v)<threshold)

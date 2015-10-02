@@ -20,13 +20,10 @@ Pixel::~Pixel()
 //calculate the labels for the pixels
 void Pixel::CalLabel(ImageTable *image_table)
 {
-	if(image_index_<0 || image_index_>=image_table->images_.size()){
-	//	exit(0);
-		cout<<"index is wrong"<<endl;
+	ImageEntry * image_entry=image_table->get_image(image_index_);
+	if(image_entry==NULL){
 		return;
 	}
-
-	ImageEntry * image_entry=image_table->images_.at(image_index_);
 	for(int i=0; i<image_entry->joints.size(); i++){
 
 		Offset joint_offset;
