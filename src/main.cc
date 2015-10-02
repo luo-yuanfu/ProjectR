@@ -3,13 +3,22 @@
 int main()
 {
 	//directory that contains our training images
-	string path="~/Pictures/";
+	string train_path="~/Pictures/train";
 
 	RandomForest rf_regressor;
-	rf_regressor.BuildForest(path);
+	rf_regressor.BuildForest(train_path);
 
-	string filename="...";
-	rf_regressor.Predict(filename);
+	string test_path="~/Pictures/test";
+	ImageTable *test_image_table;
+	test_image_table->LoadImages(test_path);
 
+	vector <vector<PixelInfo> > predict_result = rf_regressor.Predict(test_image_table);
+
+
+	bool validation=true;
+	if(validation){
+		double error=rf_regressor.Evaluate(predict_result, test_image_table);
+		cout<<error<<endl;
+	}
 	return 0;
 }

@@ -19,6 +19,7 @@ Tree::~Tree()
 
 
 //to do: calculate and return feature value for pixel using u and v
+//need to use image_table_ to get the pixels 
 //*****************************************************************************
 double Tree::FeatureValue(Pixel piexl, int u, int v)
 {
@@ -37,6 +38,18 @@ void Tree::InitRoot(vector <Pixel> pixels)
 //*****************************************************************************
 
 
+//build the tree, and calculate the labels for the leaf nodes
+//*****************************************************************************
+void Tree::ConstructTree()
+{
+	BuildTree(1, root_);
+	CalLeafLabel();
+}
+//*****************************************************************************
+
+
+//*****************************************************************************
+
 //build decision tree
 //*****************************************************************************
 void Tree::BuildTree(int depth, Node* cur_node)
@@ -52,28 +65,32 @@ void Tree::BuildTree(int depth, Node* cur_node)
 	double best_threshold=0;
 	
 	//find the best u v and threshold to split the pixels. currently select the best from SAMPLE_NUM randomly sampled <u,v,threshold>
-	for(int iter=0; iter<SAMPLE_NUM; iter++){
+	for(int iter=0; iter<SAMPLE_UV_NUM; iter++){
 		int u,v;
 		double threshold;
-		RandomSample(u,v,threshold);
 		vector<Pixel> left_pixel;
 		vector<Pixel> right_pixel;
-		for(int i=0; i<cur_node->pixels_.size(); i++){
-			if(FeatureValue(cur_node->pixels_.at(i), u, v)<threshold)
-				left_pixel.push_back(cur_node->pixels_.at(i));
-			else right_pixel.push_back(cur_node->pixels_.at(i));
+
+		RandomSample(u,v);
+
+		for(int iter2; iter2<SAMPLE_THRESHOLD_NUM; iter2++){
+			RandomSample(threshold);
+			for(int i=0; i<cur_node->pixels_.size(); i++){
+				if(FeatureValue(cur_node->pixels_.at(i), u, v)<threshold)
+					left_pixel.push_back(cur_node->pixels_.at(i));
+				else right_pixel.push_back(cur_node->pixels_.at(i));
+			}		
+			double info_gain=InformationGain(cur_node, left_pixel, right_pixel);
+			if(info_gain>max_info_gain){
+				max_info_gain=info_gain;
+				best_u=u;
+				best_v=v;
+				best_threshold=threshold;
+			}
+			
+			left_pixel.clear();
+			right_pixel.clear();
 		}
-		
-		double info_gain=InformationGain(cur_node, left_pixel, right_pixel);
-		if(info_gain>max_info_gain){
-			max_info_gain=info_gain;
-			best_u=u;
-			best_v=v;
-			best_threshold=threshold;
-		}
-		
-		left_pixel.clear();
-		right_pixel.clear();
 	}
 	
 	Node *left_child=new Node();
@@ -111,11 +128,32 @@ double Tree::InformationGain(Node *cur_node, vector<Pixel> left_pixel, vector<Pi
 //*****************************************************************************
 
 
-//to do: randomly sample a legal <u,v,threshold>
+//to do: randomly sample a legal pair <u,v>
 //*****************************************************************************
-void Tree::RandomSample(int &u, int &v, double &threshold)
+void Tree::RandomSample(int &u, int &v)
 {
 	
+}
+//*****************************************************************************
+
+
+//to do: randomly sample a legal threshold
+//*****************************************************************************
+void Tree::RandomSample(double &threshold)
+{
+	
+}
+//*****************************************************************************
+
+
+//to do: calculate the labels for the leaf node
+//hint: can use the same way I build the tree to find the leaf nodes and calculate
+//their labels, and will need to redefine the parameters for this function.
+//call Node::MeanShift or Node::Average function here
+//*****************************************************************************
+void Tree::CalLeafLabel()
+{
+
 }
 //*****************************************************************************
 

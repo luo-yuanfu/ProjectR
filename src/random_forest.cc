@@ -25,7 +25,7 @@ void RandomForest::BuildForest(string path)
 		tree->set_image_table(image_table_);
 		
 		tree->InitRoot(SelectInput());
-		tree->BuildTree(1, tree->root_);
+		tree->ConstructTree();
 		
 		trees_.push_back(tree);
 	}
@@ -52,7 +52,7 @@ vector<Pixel> RandomForest::SelectInput()
 
 
 //*****************************************************************************
-Label RandomForest::Predict(string filename)
+vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
 {
 	if(trees_.size()==0){
 		cout<<"the regressor hasn't been trained yet"<<endl;
@@ -63,3 +63,26 @@ Label RandomForest::Predict(string filename)
 	//to do: load image and predict its label using  the trees we get
 }
 //*****************************************************************************
+
+double RandomForest::Evaluate(vector <vector<PixelInfo> > predict_result, ImageTable* test_image_table)
+{
+	double error=0;
+
+	for(int i=0; i<predict_result.size(); i++){
+
+		vector<PixelInfo> label_for_one_image=test_image_table->images_.at(i)->joints;
+		vector<PixelInfo> prediction_of_ith_image = predict_result.at(i);
+		
+		for(int j=0; j<label_for_one_image.size(); j++){
+			double joints_error=0;	
+			joints_error+=fabs(prediction_of_ith_image.at(j).x - label_for_one_image.at(j).x);
+			joints_error+=fabs(prediction_of_ith_image.at(j).y - label_for_one_image.at(j).y);
+			joints_error+=fabs(prediction_of_ith_image.at(j).depth - label_for_one_image.at(j).depth);
+			error+=joints_error/label_for_one_image.size();//average joint error for one image
+		}
+
+	
+	}
+
+	return error/predict_result.size();
+}

@@ -29,6 +29,29 @@ double Node::Entropy(vector <Pixel> pixels)
 //*****************************************************************************
 
 
+//to do: given the pixels in the node, calculate the label of it using meanshift
+//the function Tree::CalLeafLabel will call this function to calculate the labels
+//for all the leaf nodes
+//*****************************************************************************
+void Node::MeanShift()
+{
+
+}
+//*****************************************************************************
+
+
+
+//to do: given the pixels in the node, calculate the label of it using average
+//the function Tree::CalLeafLabel will call this function to calculate the labels
+//for all the leaf nodes
+//*****************************************************************************
+void Node::Average()
+{
+
+}
+//*****************************************************************************
+
+
 //set u and v
 //*****************************************************************************
 void Node::set_uv(int u, int v)

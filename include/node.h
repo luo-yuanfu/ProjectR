@@ -31,11 +31,16 @@ public:
 	//if we want to calculate the entropy for left child, we feed the pixels of the left child to it
 	double Entropy(vector <Pixel> pixels);
 
+	//two ways to calculate the label of the node
+	void MeanShift();
+	void Average();
+
 	void set_uv(int u, int v);
 	void set_threshold(double threshold);
 	void set_parent(Node* parent);
 	void set_left_child(Node* left_child);
 	void set_right_child(Node* right_child);
+
 	
 	
 };

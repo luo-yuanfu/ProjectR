@@ -1,29 +1,27 @@
 #ifndef PIXEL_H_
 #define PIXEL_H_
 
+#include "image_table.h"
 
 using namespace std;
 
-//*******coordinate
-struct Coord{
-	int x;
-	int y;
-};
+typedef PixelInfo Offset; //offset has the same data structure with PixelInfo
 
 //*******pixel class
 class Pixel{
 public:
 
-	Coord location_;//the coordinate of the pixel
+	PixelInfo info_;
 
-	int depth_;//depth of the pixel
+	int image_index_;//the index of the image the pixel belongs to; for calculating the neighbors
 
-	//int rgb_[3]; //for potential future use
+	vector <Offset> label_;// label is the vector of offset; offset is the difference between pixel and joints
 
-	int image_index_;//the image index the pixel belongs to
+	Pixel();
+	Pixel(int image_index, PixelInfo info, ImageTable *image_table);
+	~Pixel();
 
-	//we dont need to store label for the pixel, because we 
-	//can get the label from the image got by image_index
+	void CalLabel(ImageTable *image_table);//calculate the labels for the pixels
 };
 
 

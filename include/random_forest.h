@@ -4,6 +4,7 @@
 #define MAX_TREE_NUM 10
 
 #include "tree.h"
+#include <math.h>
 
 class RandomForest{
 public:
@@ -15,9 +16,9 @@ public:
 	void BuildForest(string path = "~/Pictures/");
 	void PreprocessData(string path);
 	vector<Pixel> SelectInput();
-	
-	//Label type defined in image_table.h
-	Label Predict(string filename);
+
+	vector < vector<PixelInfo> > Predict(ImageTable* test_image_table);
+	double Evaluate(vector <vector<PixelInfo> > predict_result, ImageTable* test_image_table);
 };
 
 #endif
