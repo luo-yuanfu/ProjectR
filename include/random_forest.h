@@ -4,7 +4,7 @@
 #define MAX_TREE_NUM 10
 
 #include "tree.h"
-#include <math.h>
+#include <cmath>
 
 class RandomForest{
 public:

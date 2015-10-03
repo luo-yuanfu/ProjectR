@@ -51,6 +51,9 @@ vector<Pixel> RandomForest::SelectInput()
 //*****************************************************************************
 
 
+
+//to do:  predict the labels for all the images contained in test_image_table using  
+//the random forest we get
 //*****************************************************************************
 vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
 {
@@ -60,10 +63,16 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
 		BuildForest();
 	}
 	
-	//to do: load image and predict its label using  the trees we get
+	//hint: call Node::get_label() function to get the label_ of the leaf nodes
+
 }
 //*****************************************************************************
 
+
+
+//evaluate the performance by calculating the error. the error now is the average
+//error over all images and all joints
+//*****************************************************************************
 double RandomForest::Evaluate(vector <vector<PixelInfo> > predict_result, ImageTable* test_image_table)
 {
 	double error=0;
@@ -86,3 +95,4 @@ double RandomForest::Evaluate(vector <vector<PixelInfo> > predict_result, ImageT
 
 	return error/predict_result.size();
 }
+//*****************************************************************************

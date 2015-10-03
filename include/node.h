@@ -19,6 +19,9 @@ public:
 
 	double threshold_;
 
+	//representative offset of the leaf node. for nodes that are leaf nodes, do not need to calculate this
+	vector <Offset> label_;
+
 	Node * parent_;
 	Node * left_child_;
 	Node * right_child_;
@@ -40,6 +43,8 @@ public:
 	void set_parent(Node* parent);
 	void set_left_child(Node* left_child);
 	void set_right_child(Node* right_child);
+	void set_label(vector <Offset> label);
+	vector <Offset> get_label();//get label_ of node, if the node is leaf node
 
 	
 	

@@ -29,27 +29,51 @@ double Node::Entropy(vector <Pixel> pixels)
 //*****************************************************************************
 
 
-//to do: given the pixels in the node, calculate the label of it using meanshift
+//to do: given the pixels in the node, calculate the label of it using meanshift method
 //the function Tree::CalLeafLabel will call this function to calculate the labels
 //for all the leaf nodes
 //*****************************************************************************
 void Node::MeanShift()
 {
-
+	//call set_label() to set label_ for the leaf node after calculating the label
 }
 //*****************************************************************************
 
 
 
-//to do: given the pixels in the node, calculate the label of it using average
+//to do: given the pixels in the node, calculate the label of it using averaging method
 //the function Tree::CalLeafLabel will call this function to calculate the labels
 //for all the leaf nodes
 //*****************************************************************************
 void Node::Average()
 {
-
+	//call set_label() to set label_ for the leaf node after calculating the label
 }
 //*****************************************************************************
+
+
+
+//set label_
+//*****************************************************************************
+void Node::set_label(vector <Offset> label)
+{
+	label_=label;
+}
+//*****************************************************************************
+
+
+
+//get label_ of node, if the node is leaf node
+//*****************************************************************************
+vector <Offset>  Node::get_label()
+{
+	if(left_child_!=NULL || right_child_ != NULL){
+		cout<<"not leaf node"<<endl;
+		return label_;//since this is not a leaf node, label_ is empty, 
+		//need to check label_.size() in the function that calls this function
+	}
+	return label_;
+}
 
 
 //set u and v
@@ -96,3 +120,4 @@ void Node::set_right_child(Node* right_child)
 	right_child_=right_child;
 }
 //*****************************************************************************
+
