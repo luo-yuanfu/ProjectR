@@ -82,8 +82,8 @@ double RandomForest::Evaluate(vector <vector<PixelInfo> > predict_result, ImageT
 		vector<PixelInfo> label_for_one_image=test_image_table->images_.at(i)->joints;
 		vector<PixelInfo> prediction_of_ith_image = predict_result.at(i);
 		
-		for(int j=0; j<label_for_one_image.size(); j++){
-			double joints_error=0;	
+		double joints_error=0;
+		for(int j=0; j<label_for_one_image.size(); j++){	
 			joints_error+=fabs(prediction_of_ith_image.at(j).x - label_for_one_image.at(j).x);
 			joints_error+=fabs(prediction_of_ith_image.at(j).y - label_for_one_image.at(j).y);
 			joints_error+=fabs(prediction_of_ith_image.at(j).depth - label_for_one_image.at(j).depth);
