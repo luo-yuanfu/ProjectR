@@ -2,9 +2,17 @@
 INCDIR = include
 SRCDIR = src
 BINDIR = bin
+LIBDIR = /opt/local/lib
 
 #### compiler/linker options
-INCL = -I $(INCDIR)
+INCL = -I $(INCDIR) 
+
+INCL2 = -I/opt/local/include \
+        -I/opt/local/include/opencv \
+        -I/opt/local/include/opencv2/core
+
+LIB = -L$(LIBDIR) -lopencv_core -lopencv_highgui -lopencv_imgproc
+
 CXX = g++
 
 ### files
@@ -20,7 +28,7 @@ directory:
 	mkdir -p $(BINDIR)
 
 $(PROG): directory
-	$(CXX) $(SOURCES) $(INCL) -o $(PROG)
+	$(CXX) $(INCL2) $(SOURCES) $(INCL) -o $(PROG) $(LIB)
 
 clean:
 	rm -rf $(BINDIR)

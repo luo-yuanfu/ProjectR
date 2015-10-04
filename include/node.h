@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 
+#define BANDWIDTH 0.75
 //*******node class: the node in the tree
 class Node{
 public:
@@ -14,8 +15,8 @@ public:
 
 	vector <Pixel> pixels_;
 
-	int u_;
-	int v_;
+	std::pair<int,int> u_;
+	std::pair<int,int> v_;
 
 	double threshold_;
 
@@ -33,12 +34,12 @@ public:
 	//calculate and return the entropy for pixels. say if we want to calculate the entropy for parent, then we feed all the pixels to it
 	//if we want to calculate the entropy for left child, we feed the pixels of the left child to it
 	double Entropy(vector <Pixel> pixels);
-
+        double Cal_DetCov(const vector<vector<int> > M);
 	//two ways to calculate the label of the node
 	void MeanShift();
 	void Average();
 
-	void set_uv(int u, int v);
+	void set_uv(std::pair<int,int> u, std::pair<int,int> v);
 	void set_threshold(double threshold);
 	void set_parent(Node* parent);
 	void set_left_child(Node* left_child);
