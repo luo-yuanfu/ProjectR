@@ -49,12 +49,12 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> 
 	const unsigned int I_height = I.size();
 	const unsigned int I_width = I[0].size();
 	int depth_u, depth_v;
-	if(ux > I_width-1 || uy > I_height-1) {  // pixel u out of image boundary
+	if(ux < 0 || uy < 0 || ux > I_width-1 || uy > I_height-1) {  // pixel u out of image boundary
           depth_u = 255; // treat as background (white)
 	}else {
 	  depth_u = I[uy][ux];
 	}
-	if(vx > I_width-1 || vy > I_height-1) {  // pixel v out of image boundary
+	if(vx < 0 || vy < 0 || vx > I_width-1 || vy > I_height-1) {  // pixel v out of image boundary
           depth_v = 255; // treat as background (white)
 	}else {
 	  depth_v = I[vy][vx];
@@ -201,7 +201,7 @@ void Tree::CalLeafLabel(Node* cur_node)
           // cur_node is a leaf node
 #ifdef MEANSHIFT
 	  cur_node->MeanShift();
-#elif define AVERAGE
+#elif defined AVERAGE
           cur_node->Average();
 #endif
 	}
