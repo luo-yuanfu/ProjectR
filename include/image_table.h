@@ -4,53 +4,59 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstdlib>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
+
 
 using namespace std;
+using namespace cv;
 
-struct Coord{
-	int x;
-	int y;
-};
+
 
 struct BoundBox{
-	Coord start;//the left and top most pixel position of bounding box;
-	int width;//the width of the bounding box
-	int height;//the height of the bounding box
+	int x,y;						//(x,y) position of the left-top x is column y is row
+	int width;						//the number of columns
+	int height;						//the number of rows
 };
 
-//*******pixel information
 struct PixelInfo{
-	int x;//x position of the pixel
-	int y;//y position of the pixel
-	int depth;//depth of the pixel
+	int x,y;						//position of the pixel x is column y is row
+	int depth;						//depth of the pixel
 };
-
-//to do: modify "int" to define image data type
-typedef int ImageType; //the "int" here is just for sucessful compilation. use the image type you prefer to replace it
 
 struct ImageEntry{
-	ImageType image;
+	//Mat image;
+	int **image_depth;
+	int width,height;
 	BoundBox bounding_box;
-	int image_id;//the id of the image, for quick indexing. this param seems unnecessary. because we can index by the index of vector
-	vector<PixelInfo> joints;//the joints information;
+	vector<PixelInfo> joints;		//the joints information;
 };
 
 
 //******** image lookup table
 class ImageTable{
+
+private:
+	float delta;					// the threshold percentage for the bounding box range(0,1)
+	BoundBox CalcBoundBox(Mat image, vector<PixelInfo> joints);
+	BoundBox CalcBoundBox(Mat image);
 public:
 	vector <ImageEntry *> images_;
-
-public:
 	ImageTable();
+	ImageTable(float _delta);
 	ImageTable(string path);
 	~ImageTable();
 
-	void LoadImages(string path);
+	void LoadImages(string Ipath, string Lpath, string Iext);		// load image for train images
+	void LoadImages(string Iname);									// load image for test image
+	void SetDelta(float _delta){delta=_delta;}
+
 
 	ImageEntry * get_image(int index);
-
 };
 
 #endif

@@ -45,9 +45,12 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> 
 	int vy = y + v.second/depth;
 
 	//*** To edit based on ImageType defined in ImageTable Class
-	ImageType I = image_table_->images_[imgIdx]->image;
-	const unsigned int I_height = I.size();
-	const unsigned int I_width = I[0].size();
+	//ImageType I = image_table_->images_[imgIdx]->image;
+	//const unsigned int I_height = I.size();
+	//const unsigned int I_width = I[0].size();
+	int ** I = image_table_->images_[imgIdx]->image_depth;
+	const unsigned int I_height = image_table_->images_[imgIdx]->height;
+	const unsigned int I_width =  image_table_->images_[imgIdx]->width;
 	int depth_u, depth_v;
 	if(ux < 0 || uy < 0 || ux > I_width-1 || uy > I_height-1) {  // pixel u out of image boundary
           depth_u = 255; // treat as background (white)

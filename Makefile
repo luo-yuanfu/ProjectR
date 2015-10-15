@@ -3,6 +3,11 @@ INCDIR = include
 SRCDIR = src
 BINDIR = bin
 
+#### opencv 
+CFLAGS = `pkg-config --cflags opencv`
+LIBS = `pkg-config --libs opencv`
+####
+
 #### compiler/linker options
 INCL = -I $(INCDIR)
 CXX = g++
@@ -20,7 +25,7 @@ directory:
 	mkdir -p $(BINDIR)
 
 $(PROG): directory
-	$(CXX) $(SOURCES) $(INCL) -o $(PROG)
+	$(CXX) $(SOURCES) $(INCL) -o $(PROG) $(CFLAGS) $(LIBS)
 
 clean:
 	rm -rf $(BINDIR)
