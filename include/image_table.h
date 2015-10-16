@@ -23,6 +23,7 @@ struct BoundBox{
 	int height;						//the number of rows
 };
 
+
 struct PixelInfo{
 	int x,y;						//position of the pixel x is column y is row
 	int depth;						//depth of the pixel

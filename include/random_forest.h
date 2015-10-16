@@ -2,9 +2,12 @@
 #define RANDOM_FOREST_H_
 
 #define MAX_TREE_NUM 10
+#define IMG_SUBSET_SIZE 200
+#define PX_SUBSET_SIZE 2000
 
 #include "tree.h"
 #include <cmath>
+#include <algorithm>
 
 class RandomForest{
 public:
