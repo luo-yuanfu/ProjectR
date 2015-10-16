@@ -19,7 +19,7 @@ void RandomForest::BuildForest(string path)
 {
 	PreprocessData(path);
 	
-	while(trees_.size()<=MAX_TREE_NUM)
+	while(trees_.size()<MAX_TREE_NUM)
 	{
 		Tree * tree=new Tree();
 		tree->set_image_table(image_table_);
