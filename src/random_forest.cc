@@ -48,8 +48,8 @@ vector<Pixel> RandomForest::SelectInput()
 {
 	vector<Pixel> input_px;
 
-    // for each tree, sample from image with replacement
-    const unsigned int Ntraining = image_table_->images_.size();
+  // for each tree, sample from image with replacement
+  const unsigned int Ntraining = image_table_->images_.size();
 	// shuffle training data
 	vector<int> train_img_idx(Ntraining);
 	for(int i=0;i<Ntraining;i++) {
@@ -101,7 +101,8 @@ vector<Pixel> RandomForest::SelectInput()
 	    Pixel * px = new Pixel(img_index,info,image_table_);
             input_px.push_back(px);
         */
-        PixelInfo px_info;
+
+      PixelInfo px_info;
 	    px_info.x = x;
 	    px_info.y = y;
 	    px_info.depth = I->image_depth[y][x];
