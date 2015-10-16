@@ -67,6 +67,44 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> 
 //*****************************************************************************
 
 
+//to do: calculate and return feature value for pixel using u and v
+//need to use image_table_ to get the pixels 
+//*****************************************************************************
+double Tree::FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> v, ImageTable* test_image_table)
+{
+  	int x     = piexl.info_.x;
+  	int y     = piexl.info_.y;
+  	int depth = piexl.info_.depth;
+	int imgIdx = piexl.image_index_;
+	int ux = x + u.first/depth;
+	int uy = y + u.second/depth;
+	int vx = x + v.first/depth;
+	int vy = y + v.second/depth;
+
+	//*** To edit based on ImageType defined in ImageTable Class
+	//ImageType I = image_table_->images_[imgIdx]->image;
+	//const unsigned int I_height = I.size();
+	//const unsigned int I_width = I[0].size();
+	int ** I = test_image_table->images_[imgIdx]->image_depth;
+	const unsigned int I_height = test_image_table->images_[imgIdx]->height;
+	const unsigned int I_width =  test_image_table->images_[imgIdx]->width;
+	int depth_u, depth_v;
+	if(ux < 0 || uy < 0 || ux > I_width-1 || uy > I_height-1) {  // pixel u out of image boundary
+          depth_u = 255; // treat as background (white)
+	}else {
+	  depth_u = I[uy][ux];
+	}
+	if(vx < 0 || vy < 0 || vx > I_width-1 || vy > I_height-1) {  // pixel v out of image boundary
+          depth_v = 255; // treat as background (white)
+	}else {
+	  depth_v = I[vy][vx];
+	}
+	return ((double)(depth_u - depth_v));
+}
+//*****************************************************************************
+
+
+
 //init root node
 //*****************************************************************************
 void Tree::InitRoot(vector <Pixel> pixels)

@@ -152,16 +152,18 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
           tmpnode = tmptree->root_;
           // spilt
           while (tmpnode != NULL) {
+            ////////////////
             tmppixel = tmpentry->image_depth[y][x];
-            if (tmptree->FeatureValue(tmppixel, tmpnode->u_, tmpnode->v_) <
+            if (tmptree->FeatureValue(tmppixel, tmpnode->u_, tmpnode->v_,test_image_table) <
                 tmpnode->threshold_) {
-              tmpnode = tmpnode->left_child_;
               label = tmpnode->get_label();
+              tmpnode = tmpnode->left_child_;              
             } else {
-              tmpnode = tmpnode->right_child_;
               label = tmpnode->get_label();
+              tmpnode = tmpnode->right_child_;            
             }
           }
+          ///////////////meanshift first then average//////////////////////////
           if (j == 0)
             // append the label to
             joints_set.push_back(label);
@@ -363,7 +365,7 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
     joints_set.clear();
   }
   return images_joints;
-  */
+*/
 }
 //*****************************************************************************
 

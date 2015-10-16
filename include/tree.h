@@ -22,6 +22,7 @@ public:
 
 	//calculate feature value for pixel using u and v
 	double FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> v);
+	double FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> v, ImageTable* test_image_table);
 	void InitRoot(vector <Pixel> pixels);
 	void ConstructTree();
 	void BuildTree(int depth, Node* cur_node);//build the tree, without calculating the labels for the leaf nodes
