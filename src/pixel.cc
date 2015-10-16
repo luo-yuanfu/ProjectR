@@ -11,7 +11,7 @@ Pixel::Pixel()
 
 
 //*****************************************************************************
-Pixel::Pixel(int image_index, PixelInfo info, ImageTable *image_table): info_(info_), image_index_(image_index)
+Pixel::Pixel(int image_index, PixelInfo info, ImageTable *image_table): info_(info), image_index_(image_index)
 {
 	CalLabel(image_table);
 }
