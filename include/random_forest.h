@@ -22,6 +22,8 @@ public:
 
 	vector < vector<PixelInfo> > Predict(ImageTable* test_image_table);
 	double Evaluate(vector <vector<PixelInfo> > predict_result, ImageTable* test_image_table);
+	vector <Offset> meanshift(vector <Offset> label,vector<vector<PixelInfo> > joints_set);
+	vector <Offset> splitpixel(Tree *tmptree,Node *tmpnode,Pixel tmppixel,ImageTable* test_image_table);
 };
 
 #endif

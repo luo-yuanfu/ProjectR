@@ -19,6 +19,7 @@ public:
 
 	Pixel();
 	Pixel(int image_index, PixelInfo info, ImageTable *image_table);
+	Pixel(int image_index, PixelInfo info);
 	~Pixel();
 
 	void CalLabel(ImageTable *image_table);//calculate the labels for the pixels

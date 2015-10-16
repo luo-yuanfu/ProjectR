@@ -18,6 +18,13 @@ Pixel::Pixel(int image_index, PixelInfo info, ImageTable *image_table): info_(in
 //*****************************************************************************
 
 
+//*****************************************************************************
+Pixel::Pixel(int image_index, PixelInfo info): info_(info)
+{
+}
+//*****************************************************************************
+
+
 //delete the dynamic allocated memory if there is any
 //*****************************************************************************
 Pixel::~Pixel()

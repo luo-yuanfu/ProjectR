@@ -115,102 +115,25 @@ vector<Pixel> RandomForest::SelectInput()
     return input_px;
 }
 //*****************************************************************************
-
-
-
-//to do:  predict the labels for all the images contained in test_image_table using  
-//the random forest we get
-//*****************************************************************************
-vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
+vector <Offset> RandomForest::splitpixel(Tree * tmptree,Node * tmpnode,Pixel tmppixel,ImageTable* test_image_table)
 {
-  if (trees_.size() == 0) {
-    cout << "the regressor hasn't been trained yet" << endl;
-    cout << "begin building random forest..." << endl;
-    BuildForest();
-  }
-/*
-  // hint: call Node::get_label() function to get the label_ of the leaf nodes
-  ImageEntry *tmpentry;
-  Tree *tmptree;
-  Node *tmpnode;
-  vector<vector<PixelInfo> > joints_set;
-  Pixel tmppixel;
-  vector<Offset> label;
-  vector<vector<PixelInfo> > images_joints;
-  // for each image
-  for (int i = 0; test_image_table->images_.size(); i++) {
-    tmpentry = test_image_table->get_image(i);
-    // iter the forest;
-    for (int j = 0; i < trees_.size(); i++) {
-      tmptree = trees_.at(j);
-      // split the pixels to different leaf
-      for (int x = tmpentry->bounding_box.x;
-           x < tmpentry->bounding_box.width + tmpentry->bounding_box.x; x++) {
-        for (int y = tmpentry->bounding_box.y;
-             y < tmpentry->bounding_box.height + tmpentry->bounding_box.y;
-             y++) {
-          tmpnode = tmptree->root_;
-          // spilt
-          while (tmpnode != NULL) {
+  vector <Offset> label;
+  while (tmpnode != NULL) {
             ////////////////
-            tmppixel = tmpentry->image_depth[y][x];
-            if (tmptree->FeatureValue(tmppixel, tmpnode->u_, tmpnode->v_,test_image_table) <
-                tmpnode->threshold_) {
-              label = tmpnode->get_label();
-              tmpnode = tmpnode->left_child_;              
-            } else {
-              label = tmpnode->get_label();
-              tmpnode = tmpnode->right_child_;            
-            }
-          }
-          ///////////////meanshift first then average//////////////////////////
-          if (j == 0)
-            // append the label to
-            joints_set.push_back(label);
-          else {
-            for (int k = 0; k < label.size(); k++) {
-              joints_set.at(x * tmpentry->bounding_box.height + y -
-                            tmpentry->bounding_box.y)
-                  .at(k)
-                  .x =
-                  (int)(j *
-                            joints_set.at(x * tmpentry->bounding_box.height +
-                                          y - tmpentry->bounding_box.y)
-                                .at(k)
-                                .x +
-                        label.at(k).x) /
-                  (j + 1);
-              joints_set.at(x * tmpentry->bounding_box.height + y -
-                            tmpentry->bounding_box.y)
-                  .at(k)
-                  .y =
-                  (int)(j *
-                            joints_set.at(x * tmpentry->bounding_box.height +
-                                          y - tmpentry->bounding_box.y)
-                                .at(k)
-                                .y +
-                        label.at(k).y) /
-                  (j + 1);
-              joints_set.at(x * tmpentry->bounding_box.height + y -
-                            tmpentry->bounding_box.y)
-                  .at(k)
-                  .depth =
-                  (j *
-                       joints_set.at(x * tmpentry->bounding_box.height + y -
-                                     tmpentry->bounding_box.y)
-                           .at(k)
-                           .depth +
-                   label.at(k).depth) /
-                  (j + 1);
-            }
-          }
-        }
+    if (tmptree->FeatureValue(tmppixel, tmpnode->u_, tmpnode->v_,test_image_table) <
+        tmpnode->threshold_) {
+        label = tmpnode->get_label();
+        tmpnode = tmpnode->left_child_;              
+      } 
+      else {
+        label = tmpnode->get_label();
+        tmpnode = tmpnode->right_child_;            
       }
-    }
-    //		images_joints.push_back(meanshift(joints_set));
-    // does mean shift for all joint locations simultaneously (concat joint
-    // labels to Njointx3
-    // dimensions)
+  }
+  return label;
+}
+vector <Offset> RandomForest::meanshift(vector <Offset> label,vector<vector<PixelInfo> > joints_set)
+{
     const unsigned int Njoints = label.size();
     const unsigned int Npixels = joints_set.size();
     const unsigned int Ndim = Njoints * 3;
@@ -361,11 +284,64 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
       L[j].y = clustCent[biggestClust][j * 3 + 1];
       L[j].depth = clustCent[biggestClust][j * 3 + 2];
     }
-    images_joints.push_back(L);
-    joints_set.clear();
+    return L;
+}
+
+//to do:  predict the labels for all the images contained in test_image_table using  
+//the random forest we get
+//*****************************************************************************
+vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
+{
+  if (trees_.size() == 0) {
+    cout << "the regressor hasn't been trained yet" << endl;
+    cout << "begin building random forest..." << endl;
+    BuildForest();
+  }
+
+  // hint: call Node::get_label() function to get the label_ of the leaf nodes
+  ImageEntry *tmpentry;
+  Tree *tmptree;
+  Node *tmpnode;
+  vector<vector<PixelInfo> > joints_set;
+ // Pixel tmppixel;
+  vector<Offset> label;
+  vector<vector<PixelInfo> > images_joints;
+  // for each image
+  for (int i = 0; test_image_table->images_.size(); i++) {
+    tmpentry = test_image_table->get_image(i);
+    // iter the forest;
+    for (int j = 0; i < trees_.size(); i++) {
+      tmptree = trees_.at(j);
+      // split the pixels to different leaf
+      for (int x = tmpentry->bounding_box.x;
+           x < tmpentry->bounding_box.width + tmpentry->bounding_box.x; x++) {
+        for (int y = tmpentry->bounding_box.y;
+             y < tmpentry->bounding_box.height + tmpentry->bounding_box.y;
+             y++) {
+          tmpnode = tmptree->root_;
+          Pixel tmppixel(i, {x,y,tmpentry->image_depth[y][x]});
+          splitpixel(tmptree,tmpnode,tmppixel,test_image_table);
+          ///////////////meanshift first then average//////////////////////////
+          joints_set.push_back(label);
+        }
+      }
+      vector <Offset> L=meanshift(label,joints_set);
+      if(j==0){
+        images_joints.push_back(L);
+      }
+      else{
+        for(int k=0;k<label.size();k++){
+          images_joints.at(i).at(k).x=(images_joints.at(i).at(k).x*j+L.at(k).x)/(j+1);
+          images_joints.at(i).at(k).y=(images_joints.at(i).at(k).y*j+L.at(k).y)/(j+1);
+          images_joints.at(i).at(k).depth=(images_joints.at(i).at(k).depth*j+L.at(k).depth)/(j+1);
+        }
+      }
+      joints_set.clear();
+    }
+
   }
   return images_joints;
-*/
+
 }
 //*****************************************************************************
 
