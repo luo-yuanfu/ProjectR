@@ -3,12 +3,12 @@
 int main()
 {
 	//directory that contains our training images
-	string train_path="~/Pictures/train";
+	string train_path="../train/pic";
 
 	RandomForest rf_regressor;
 	rf_regressor.BuildForest(train_path);
 
-	string test_path="~/Pictures/test";
+	string test_path="../test/pic/depth";
 	ImageTable *test_image_table;
 	test_image_table->LoadImages(test_path);
 

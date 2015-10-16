@@ -36,8 +36,11 @@ void RandomForest::BuildForest(string path)
 //*****************************************************************************
 void RandomForest::PreprocessData(string path)
 {
-	image_table_=new ImageTable();
-	image_table_->LoadImages(path);//load images to image table
+	string train_path=path+"/depth";//"../train/pic/depth";
+  string train_image_ext  = ".png";
+  string train_label_path ="../train/label";
+  image_table_=new ImageTable();
+  image_table_->LoadImages(train_path,train_label_path,train_image_ext);//load images to image table
 }
 //*****************************************************************************
 
@@ -319,7 +322,11 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
              y < tmpentry->bounding_box.height + tmpentry->bounding_box.y;
              y++) {
           tmpnode = tmptree->root_;
-          Pixel tmppixel(i, {x,y,tmpentry->image_depth[y][x]});
+          PixelInfo temp_pixel_info;//(x,y,tmpentry->image_depth[y][x]);
+          temp_pixel_info.x=x;
+          temp_pixel_info.y=y;
+          temp_pixel_info.depth=tmpentry->image_depth[y][x];
+          Pixel tmppixel(i, temp_pixel_info);
           splitpixel(tmptree,tmpnode,tmppixel,test_image_table);
           ///////////////meanshift first then average//////////////////////////
           joints_set.push_back(label);

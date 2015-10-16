@@ -30,11 +30,11 @@ ImageTable::~ImageTable()
 
 		delete [] ((*iter)->image_depth);
 
-		(*iter)->joints.clear();
-		vector<PixelInfo>().swap((*iter)->joints);
+	//	(*iter)->joints.clear();
+	//	vector<PixelInfo>().swap((*iter)->joints);
 	}
-	this->images_.clear();
-	vector<ImageEntry *>().swap(this->images_);
+//	this->images_.clear();
+//	vector<ImageEntry *>().swap(this->images_);
 }
 //*****************************************************************************
 
