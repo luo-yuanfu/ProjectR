@@ -195,7 +195,7 @@ void ImageTable::LoadImages(string Ipath, string Lpath, string Iext)
 			PixelInfo newJoint;
 			newJoint.x = tmp;
 			iss >> newJoint.y;
-			newJoint.depth = image.at<uchar>(newJoint.y,(newJoint.x-1)*3);
+			newJoint.depth = image.at<uchar>(newJoint.y, newJoint.x);
 			newImage->joints.push_back(newJoint);
 		}
 		newImage->bounding_box=CalcBoundBox(image, newImage->joints);

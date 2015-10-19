@@ -39,10 +39,10 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int,int> u, std::pair<int,int> 
   	int y     = piexl.info_.y;
   	int depth = piexl.info_.depth;
 	int imgIdx = piexl.image_index_;
-	int ux = x + u.first/depth;
-	int uy = y + u.second/depth;
-	int vx = x + v.first/depth;
-	int vy = y + v.second/depth;
+	int ux = x + u.first;
+	int uy = y + u.second;
+	int vx = x + v.first;
+	int vy = y + v.second;
 
 	//*** To edit based on ImageType defined in ImageTable Class
 	//ImageType I = image_table_->images_[imgIdx]->image;
@@ -156,16 +156,42 @@ void Tree::BuildTree(int depth, Node* cur_node)
 		for(int i=1; i<cur_node->pixels_.size(); i++){
 			double curr_feat = FeatureValue(cur_node->pixels_.at(i), u, v);
 			if(curr_feat < min_feat) min_feat = curr_feat;
-			if(curr_feat < max_feat) max_feat = curr_feat;
+			if(curr_feat > max_feat) max_feat = curr_feat;
 		}
-                double step = (max_feat-min_feat)/(SAMPLE_THRESHOLD_NUM-1);
+		// ensure SAMPLE_THRESHOLD_NUM < (max_feat - min_feat)
+                if(SAMPLE_THRESHOLD_NUM > (max_feat - min_feat + 1) ) {
+                    	std::cerr<<__FILE__<<__LINE__<<"SAMPLE_THRESHOLD_NUM is more than range of features. Aborting. "<<std::endl;
+                    	throw;
+                }
+                int feat_range = max_feat-min_feat+1;
+                std::vector<int> candidate_threshold(feat_range);
+                for(int t=0;t<feat_range;++t) {
+                  	candidate_threshold[t] = min_feat + t;
+                }
+                std::random_shuffle(candidate_threshold.begin(),candidate_threshold.end());
+                int sample = 0;
 		for(int iter2=0; iter2<SAMPLE_THRESHOLD_NUM; iter2++){
-			threshold = min_feat + iter2*step;
-			for(int i=0; i<cur_node->pixels_.size(); i++){
-				if(FeatureValue(cur_node->pixels_.at(i), u, v)<threshold)
-					left_pixel.push_back(cur_node->pixels_.at(i));
-				else right_pixel.push_back(cur_node->pixels_.at(i));
-			}		
+			int success = 0;
+                        double iter_threshold;
+                        do {
+                        	if(sample > feat_range-1) {
+                                	std::cerr<<__FILE__<<__LINE__<<" threshold samples exceed feature range. Abort."<<std::endl;
+                                	throw;
+                              	}
+                              	iter_threshold = candidate_threshold[sample];
+                              	for(int i=0; i<cur_node->pixels_.size(); i++){
+                                	if(FeatureValue(cur_node->pixels_.at(i), u, v)<iter_threshold)
+                                        	left_pixel.push_back(cur_node->pixels_.at(i));
+                                	else right_pixel.push_back(cur_node->pixels_.at(i));
+                              	}
+                              	// check both left and right nodes have more than 1 pixel
+                              	if(left_pixel.size() > 1 && right_pixel.size() > 1) {
+                                	success = 1;
+                                	sample++;
+                             	} else {
+                                	sample++;
+                              	}
+                        } while(success == 0);			
 			double info_gain=InformationGain(cur_node, left_pixel, right_pixel);
 			if(info_gain>max_info_gain){
 				max_info_gain=info_gain;
@@ -209,6 +235,10 @@ void Tree::BuildTree(int depth, Node* cur_node)
 //*****************************************************************************
 double Tree::InformationGain(Node *cur_node, vector<Pixel> left_pixel, vector<Pixel> right_pixel)
 {
+	if(left_pixel.size() == 0 || right_pixel.size() == 0) {
+        	std::cerr<<__FILE__<<__LINE__<<"either left or right split has no pixel. Aborting. "<<std::endl;
+          	throw;
+        }	
 	return cur_node->Entropy()-(left_pixel.size()/double(cur_node->pixels_.size())*cur_node->Entropy(left_pixel) + right_pixel.size()/double(cur_node->pixels_.size())*cur_node->Entropy(right_pixel));
 }
 //*****************************************************************************
