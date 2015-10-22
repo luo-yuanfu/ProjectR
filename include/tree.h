@@ -29,6 +29,7 @@ public:
 	void CalLeafLabel(Node* cur_node); //calculate the labels for the leaf nodes
 	void RandomSample(std::pair<int,int> &u, std::pair<int,int> &v);
 	double InformationGain(Node *cur_node, vector<Pixel> left_pixel, vector<Pixel> right_pixel);
+        double NegativeSSE(Node *cur_node, vector<Pixel> left_pixel, vector<Pixel> right_pixel);
 
 	void set_image_table(ImageTable* image_table);
 };

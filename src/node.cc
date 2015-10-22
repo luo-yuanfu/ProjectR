@@ -77,7 +77,41 @@ double Node::Entropy(const vector <Pixel> pixels)
         return 0.5 * log(detcovar) + c; 	
 }
 //*****************************************************************************
+double Node::SSE(const vector <Pixel> pixels)
+{
+        const unsigned int Njoints = pixels[0].label_.size();
+        const unsigned int Npixels = pixels.size();
+        const unsigned int q = Njoints * 3;
 
+        double sse = 0.0;
+        vector<vector<double> > mean_joint(Njoints, vector<double>(3));
+        // get mean label for each joint
+        for(int j=0;j<Njoints;++j) {
+          for(int i=0;i<Npixels;++i) {
+            mean_joint[j][0] += pixels[i].label_[j].x;
+            mean_joint[j][1] += pixels[i].label_[j].y;
+            mean_joint[j][2] += pixels[i].label_[j].depth;
+          }
+        }
+        for(int j=0;j<Njoints;++j) {
+            for(int d=0;d<3;++d) {
+              mean_joint[j][d] /= (double)Npixels;
+            }
+        }
+
+        for(int j=0;j<Njoints;++j) {
+          for(int i=0;i<Npixels;++i) {
+            sse += (mean_joint[j][0] - pixels[i].label_[j].x) * (mean_joint[j][0] -
+                pixels[i].label_[j].x);
+            sse += (mean_joint[j][1] - pixels[i].label_[j].y) * (mean_joint[j][1] -
+                pixels[i].label_[j].y);
+            sse += (mean_joint[j][2] - pixels[i].label_[j].depth) * (mean_joint[j][2] -
+                pixels[i].label_[j].depth);
+          }
+        }
+        return sse;
+}
+//*****************************************************************************
 //to do: given the pixels in the node, calculate the label of it using meanshift method
 //the function Tree::CalLeafLabel will call this function to calculate the labels
 //for all the leaf nodes

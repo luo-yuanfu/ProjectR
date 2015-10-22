@@ -193,6 +193,7 @@ void Tree::BuildTree(int depth, Node* cur_node)
                               	}
                         } while(success == 0);			
 			double info_gain=InformationGain(cur_node, left_pixel, right_pixel);
+			//double info_gain=NegativeSSE(cur_node, left_pixel, right_pixel);
 			if(info_gain>max_info_gain){
 				max_info_gain=info_gain;
 				best_u=u;
@@ -240,6 +241,19 @@ double Tree::InformationGain(Node *cur_node, vector<Pixel> left_pixel, vector<Pi
           	throw;
         }	
 	return cur_node->Entropy()-(left_pixel.size()/double(cur_node->pixels_.size())*cur_node->Entropy(left_pixel) + right_pixel.size()/double(cur_node->pixels_.size())*cur_node->Entropy(right_pixel));
+}
+//*****************************************************************************
+
+//calculate the -ve of sum of squared error
+//*****************************************************************************
+double Tree::NegativeSSE(Node *cur_node, vector<Pixel> left_pixel, vector<Pixel> right_pixel)
+{
+        if(left_pixel.size() == 0 || right_pixel.size() == 0) {
+          std::cerr<<__FILE__<<__LINE__<<"either left or right split has no pixel. Aborting. "<<std::endl;
+          throw;
+        }
+        return -(left_pixel.size()/double(cur_node->pixels_.size())*cur_node->SSE(left_pixel) +
+            right_pixel.size()/double(cur_node->pixels_.size())*cur_node->SSE(right_pixel));
 }
 //*****************************************************************************
 

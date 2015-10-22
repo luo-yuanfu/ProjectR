@@ -35,6 +35,10 @@ public:
 	//if we want to calculate the entropy for left child, we feed the pixels of the left child to it
 	double Entropy(vector <Pixel> pixels);
         double Cal_DetCov(const vector<vector<int> > M);
+	
+	//calculate sum of squared error for child nodes
+	double SSE(vector <Pixel> pixels);
+	
 	//two ways to calculate the label of the node
 	void MeanShift();
 	void Average();
