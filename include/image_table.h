@@ -15,7 +15,9 @@
 using namespace std;
 using namespace cv;
 
-
+#define Image_Width  640.0
+#define Image_Height 320.0
+#define FOCUS 533.0
 
 struct BoundBox{
 	int x,y;						//(x,y) position of the left-top x is column y is row
@@ -26,7 +28,7 @@ struct BoundBox{
 
 struct PixelInfo{
 	int x,y;						//position of the pixel x is column y is row
-	int depth;						//depth of the pixel
+	int depth;					//depth of the pixel
 };
 
 struct ImageEntry{
@@ -45,6 +47,7 @@ private:
 	float delta;					// the threshold percentage for the bounding box range(0,1)
 	BoundBox CalcBoundBox(Mat image, vector<PixelInfo> joints);
 	BoundBox CalcBoundBox(Mat image);
+	void TransCoord(float &x, float &y, float &z){x = (x * FOCUS / z + Image_Width / 2); y = (y * FOCUS / z + Image_Height / 2); z = -z;};
 public:
 	vector <ImageEntry *> images_;
 	ImageTable();
