@@ -18,6 +18,7 @@ ImageTable::ImageTable(string path)
 	LoadImages(path);
 }
 
+
 //*****************************************************************************
 ImageTable::~ImageTable()
 {
@@ -82,7 +83,7 @@ BoundBox ImageTable::CalcBoundBox(Mat image)
 	Mat binary=image.clone();
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
-	//cvtColor(binary, binary, CV_BGR2GRAY );
+	binary.convertTo(binary, CV_8UC1, 255.0/2000.0, 0);				// set 2000 as the white background
 	threshold(binary, binary, 200, 255, THRESH_BINARY);
 
 	//namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
@@ -92,16 +93,16 @@ BoundBox ImageTable::CalcBoundBox(Mat image)
 	findContours(binary, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	vector<vector<Point> > contours_poly( contours.size() );
 	vector<Rect> boundRect( contours.size() );
-	Mat drawing = Mat::zeros(binary.size(), CV_8UC3 );
+	Mat drawing = Mat::zeros(binary.size(), CV_8UC3);
 	int largei=0;
 	int size=0;
-    //RNG rng(12345);
+    RNG rng(12345);
 	for( int i = 0; i < contours.size(); i++ )
 	{
 		approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
 	    boundRect[i] = boundingRect( Mat(contours_poly[i]));
-	    //Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-	   // drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+	    Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+	    drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
 	    if( i!=0  && (size < boundRect[i].area()))
 	    {
 	    	size=boundRect[i].area();
@@ -109,13 +110,13 @@ BoundBox ImageTable::CalcBoundBox(Mat image)
 	    }
 	}
 
-	//Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-	//rectangle( drawing, boundRect[largei].tl(), boundRect[largei].br(), color, 2, 8, 0 );
+	Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+	rectangle( drawing, boundRect[largei].tl(), boundRect[largei].br(), color, 2, 8, 0 );
 
 // for debug
-	//namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
-	//imshow( "Contours", drawing );
-	//waitKey();
+	namedWindow( "Contours", CV_WINDOW_AUTOSIZE );
+	imshow( "Contours", drawing );
+	waitKey();
 
 	int col_delta=(int)(image.cols*delta);
 	int row_delta=(int)(image.rows*delta);
@@ -145,7 +146,7 @@ void ImageTable::LoadImages(string Iname)
 {
 	ImageEntry *newImage = new ImageEntry;
 	//newImage->image=imread(Iname);
-	Mat image=imread(Iname,CV_LOAD_IMAGE_GRAYSCALE);
+	Mat image=imread(Iname,CV_LOAD_IMAGE_ANYDEPTH);
 	newImage->image_depth=new int*[image.rows];
 	newImage->height = image.rows;
 	newImage->width = image.cols;
@@ -153,7 +154,7 @@ void ImageTable::LoadImages(string Iname)
 	{
 		newImage->image_depth[r] = new int[image.cols];
 		for (int c = 0; c < image.cols; ++c)
-			newImage->image_depth[r][c] = (int)image.at<uchar>(r, c);
+			newImage->image_depth[r][c] = (int)image.at<short>(r, c);
 	}
 	//BoundBox CalcBoundBox(Mat image, vector<PixelInfo> joints);
 	newImage->bounding_box=CalcBoundBox(image);
@@ -167,7 +168,7 @@ void ImageTable::LoadImages(string Ipath, string Lpath, string Iext)
 	lable.open(Lpath.c_str(),ios::in); //open and read the label file
 	if(lable.fail())
 	{
-		cout << "cannot open the lable file" << endl;
+		cout << "cannot open the label file" << endl;
 		exit(-1);
 	}
 	string linestr;
@@ -177,8 +178,12 @@ void ImageTable::LoadImages(string Ipath, string Lpath, string Iext)
 
 		stringstream Iname;
 		Iname << Ipath << i << Iext;
-		//newImage->image=imread(Iname.str());
-		Mat image = imread(Iname.str(),CV_LOAD_IMAGE_GRAYSCALE);
+
+		Mat image = imread(Iname.str(),CV_LOAD_IMAGE_ANYDEPTH);
+
+		if(image.rows == 0)													// reject the missing image entry
+			continue;
+
 		newImage->image_depth = new int*[image.rows];
 		newImage->height = image.rows;
 		newImage->width = image.cols;
@@ -186,17 +191,24 @@ void ImageTable::LoadImages(string Ipath, string Lpath, string Iext)
 		{
 			newImage->image_depth[r] = new int[image.cols];
 			for (int c = 0; c < image.cols; ++c)
-				newImage->image_depth[r][c] = (int)image.at<uchar>(r, c);
+				newImage->image_depth[r][c] = (int)image.at<short>(r, c);	// here for uint8 using uchar, for uint16 changing to short.
 		}
 		istringstream iss(linestr);
-		int tmp;
-		while (iss >> tmp)
+		int index;															//image label
+		iss >> index;
+		float x,y,z;
+		for(int count=1; count<=21; count++)								// 21 labels in total
 		{
-			PixelInfo newJoint;
-			newJoint.x = tmp;
-			iss >> newJoint.y;
-			newJoint.depth = image.at<uchar>(newJoint.y, newJoint.x);
-			newImage->joints.push_back(newJoint);
+			iss >> x; iss >> y; iss >> z;
+			if( count == 1 || count == 7 || count == 14 || count == 21)		// chosen labels
+			{
+				PixelInfo newJoint;
+				ImageTable::TransCoord(x,y,z);								// transform
+				newJoint.x = int(x);
+				newJoint.y = int(y);
+				newJoint.depth = (int)z; //newImage->image_depth[r][c];
+				newImage->joints.push_back(newJoint);
+			}
 		}
 		newImage->bounding_box=CalcBoundBox(image, newImage->joints);
 		ImageTable::images_.push_back(newImage);
@@ -213,5 +225,4 @@ ImageEntry * ImageTable::get_image(int index)
 
 	return images_.at(index);
 }
-
 
