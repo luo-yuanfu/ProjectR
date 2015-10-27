@@ -162,7 +162,7 @@ void Node::MeanShift()
 	  while (1) {
             vector<double> sqDistToAll(Npixels);
 	    for(unsigned int i=0;i<Npixels;++i) {
-	      for(unsigned int j=0;j<Ndim;++i) {
+	      for(unsigned int j=0;j<Ndim;++j) {
 		sqDistToAll[i] += (double)(dataPts[i][j] - myMean[j])*(dataPts[i][j] - myMean[j]);
               }
 	    }
@@ -173,9 +173,10 @@ void Node::MeanShift()
 	      }
 	    }
 	    for(unsigned int i=0;i<inInds.size();++i) {
-	      thisClusterVotes[i] = thisClusterVotes[i] + 1;
+	      thisClusterVotes[inInds[i]] = thisClusterVotes[inInds[i]] + 1;
 	    }
 	    myOldMean = myMean;
+	    std::fill(myMean.begin(),myMean.end(),0.0);
 	    for(unsigned int j=0;j<Ndim;++j) {
 	      for(unsigned int i=0;i<inInds.size();++i) {
 		myMean[j] += dataPts[inInds[i]][j];
@@ -196,24 +197,25 @@ void Node::MeanShift()
 	    dist = sqrt(dist);
 	    if(dist < stopThresh) {
               // check for merge posibilities
-	      int mergeWith = 0;
+	      int mergeWith = -1;
 	      for(unsigned int c=0;c<numClust;++c) {
 		double distToOther = 0.0;
 		for(unsigned int i=0;i<Ndim;++i) {
 		  distToOther += (myMean[i] - clustCent[c][i])*(myMean[i] - clustCent[c][i]);
 		}
+		distToOther = sqrt(distToOther);
 		if(distToOther < bandWidth/2) {
 		  mergeWith = c;
 		  break;
 		}
 	      }
 
-	      if(mergeWith > 0) {
+	      if(mergeWith != -1) {
 		for(unsigned int i=0;i<Ndim;++i) {
-		  clustCent[mergeWith][i] = 0.5 * myMean[i] + clustCent[mergeWith][i];
-		  for(unsigned int i=0;i<Npixels;++i) {
-		    clusterVotes[mergeWith][i] = clusterVotes[mergeWith][i] + thisClusterVotes[i];
-		  }
+		  clustCent[mergeWith][i] = 0.5 * (myMean[i] + clustCent[mergeWith][i]);
+		}
+		for(unsigned int i=0;i<Npixels;++i) {
+		  clusterVotes[mergeWith][i] = clusterVotes[mergeWith][i] + thisClusterVotes[i];
 		}
 	      }else {
 		numClust += 1;
@@ -224,11 +226,11 @@ void Node::MeanShift()
 	      break;
 	    }
 	  }  // while(1)
-	  
+
 	  initPtInds.clear();
 	  for(unsigned int i=0;i<Npixels;++i) {
-            if(beenVisitedFlag[i] == 0) {
-		initPtInds.push_back(i);
+	    if(beenVisitedFlag[i] == 0) {
+	      initPtInds.push_back(i);
 	    }
 	  }
 	  numInitPts = initPtInds.size();
@@ -269,7 +271,7 @@ void Node::MeanShift()
 	  L[j].depth = clustCent[biggestClust][j*3+2];
 	}
 
-  	//call set_label() to set label_ for the leaf node after calculating the label
+	//call set_label() to set label_ for the leaf node after calculating the label
 	set_label(L);
 }
 //*****************************************************************************
@@ -282,35 +284,35 @@ void Node::MeanShift()
 //*****************************************************************************
 void Node::Average()
 {
-   	// does average method for joints separately 
-	const unsigned int Njoints = pixels_[0].label_.size();
-        const unsigned int Npixels = pixels_.size();
+  // does average method for joints separately 
+  const unsigned int Njoints = pixels_[0].label_.size();
+  const unsigned int Npixels = pixels_.size();
 
-	vector<Offset> L(Njoints);
+  vector<Offset> L(Njoints);
 
-	for(unsigned int j=0;j<Njoints;++j) {
-	  
-	  double mu_x = 0.0;
-	  double mu_y = 0.0;
-	  double mu_depth = 0.0;
+  for(unsigned int j=0;j<Njoints;++j) {
 
-	  for(unsigned int i=0;i<Npixels;++i) {
-	    mu_x += pixels_[i].label_[j].x;
-	    mu_y += pixels_[i].label_[j].y;
-	    mu_depth += pixels_[i].label_[j].depth;
-	  }
+    double mu_x = 0.0;
+    double mu_y = 0.0;
+    double mu_depth = 0.0;
 
-	  mu_x /= Npixels;
-	  mu_y /= Npixels;
-	  mu_depth /= Npixels;
+    for(unsigned int i=0;i<Npixels;++i) {
+      mu_x += pixels_[i].label_[j].x;
+      mu_y += pixels_[i].label_[j].y;
+      mu_depth += pixels_[i].label_[j].depth;
+    }
 
-          L[j].x = mu_x;
-          L[j].y = mu_y;
-          L[j].depth = mu_depth;
-	}
+    mu_x /= Npixels;
+    mu_y /= Npixels;
+    mu_depth /= Npixels;
 
-  	//call set_label() to set label_ for the leaf node after calculating the label
-	set_label(L);
+    L[j].x = mu_x;
+    L[j].y = mu_y;
+    L[j].depth = mu_depth;
+  }
+
+  //call set_label() to set label_ for the leaf node after calculating the label
+  set_label(L);
 }
 //*****************************************************************************
 
@@ -320,7 +322,7 @@ void Node::Average()
 //*****************************************************************************
 void Node::set_label(vector <Offset> label)
 {
-	label_=label;
+  label_=label;
 }
 //*****************************************************************************
 
@@ -330,12 +332,12 @@ void Node::set_label(vector <Offset> label)
 //*****************************************************************************
 vector <Offset>  Node::get_label()
 {
-	if(left_child_!=NULL || right_child_ != NULL){
-		cout<<"not leaf node"<<endl;
-		return label_;//since this is not a leaf node, label_ is empty, 
-		//need to check label_.size() in the function that calls this function
-	}
-	return label_;
+  if(left_child_!=NULL || right_child_ != NULL){
+    cout<<"not leaf node"<<endl;
+    return label_;//since this is not a leaf node, label_ is empty, 
+    //need to check label_.size() in the function that calls this function
+  }
+  return label_;
 }
 
 
@@ -343,8 +345,8 @@ vector <Offset>  Node::get_label()
 //*****************************************************************************
 void Node::set_uv(std::pair<int,int> u, std::pair<int,int> v)
 {
-	u_=u;
-	v_=v;
+  u_=u;
+  v_=v;
 }
 //*****************************************************************************
 
@@ -353,7 +355,7 @@ void Node::set_uv(std::pair<int,int> u, std::pair<int,int> v)
 //*****************************************************************************
 void Node::set_threshold(double threshold)
 {
-	threshold_=threshold;
+  threshold_=threshold;
 }
 //*****************************************************************************
 
@@ -362,7 +364,7 @@ void Node::set_threshold(double threshold)
 //*****************************************************************************
 void Node::set_parent(Node* parent)
 {
-	parent_=parent;
+  parent_=parent;
 }
 //*****************************************************************************
 
@@ -371,7 +373,7 @@ void Node::set_parent(Node* parent)
 //*****************************************************************************
 void Node::set_left_child(Node* left_child)
 {
-	left_child_=left_child;
+  left_child_=left_child;
 }
 //*****************************************************************************
 
@@ -380,7 +382,7 @@ void Node::set_left_child(Node* left_child)
 //*****************************************************************************
 void Node::set_right_child(Node* right_child)
 {
-	right_child_=right_child;
+  right_child_=right_child;
 }
 //*****************************************************************************
 
