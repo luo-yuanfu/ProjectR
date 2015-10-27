@@ -19,14 +19,24 @@ void RandomForest::BuildForest(string path)
 {
 	PreprocessData(path);
 	
+  int tree_num=0;
 	while(trees_.size()<MAX_TREE_NUM)
 	{
 		Tree * tree=new Tree();
 		tree->set_image_table(image_table_);
+
+    cout<<tree_num<<" is being constructed"<<endl;
 		
 		tree->InitRoot(SelectInput());
+
+    cout<<tree_num<<"'s root node has been initialied"<<endl;
+
 		tree->ConstructTree();
-		
+
+    cout<<tree_num<<" has been constructed"<<endl;	
+
+    tree_num++;
+
 		trees_.push_back(tree);
 	}
 }
@@ -38,7 +48,7 @@ void RandomForest::PreprocessData(string path)
 {
 	string train_path=path+"/depth";//"../train/pic/depth";
   string train_image_ext  = ".png";
-  string train_label_path ="../train/label";
+  string train_label_path ="./train/label";
   image_table_=new ImageTable();
   image_table_->LoadImages(train_path,train_label_path,train_image_ext);//load images to image table
 }

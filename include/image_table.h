@@ -47,7 +47,7 @@ private:
 	float delta;					// the threshold percentage for the bounding box range(0,1)
 	BoundBox CalcBoundBox(Mat image, vector<PixelInfo> joints);
 	BoundBox CalcBoundBox(Mat image);
-	void TransCoord(float &x, float &y, float &z){x = (x * FOCUS / z + Image_Width / 2); y = (y * FOCUS / z + Image_Height / 2); z = -z;};
+	inline void TransCoord(float &x, float &y, float &z){x = (x * FOCUS / z + Image_Width / 2); y = (y * FOCUS / z + Image_Height / 2); z = -z;};
 public:
 	vector <ImageEntry *> images_;
 	ImageTable();

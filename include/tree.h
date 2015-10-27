@@ -1,7 +1,7 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#define MAX_TREE_DEPTH 8
+#define MAX_TREE_DEPTH 2
 #define SAMPLE_UV_NUM 100
 #define SAMPLE_THRESHOLD_NUM 50
 #define UV_RANGE 10

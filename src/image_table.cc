@@ -203,7 +203,7 @@ void ImageTable::LoadImages(string Ipath, string Lpath, string Iext)
 			if( count == 1 || count == 7 || count == 14 || count == 21)		// chosen labels
 			{
 				PixelInfo newJoint;
-				ImageTable::TransCoord(x,y,z);								// transform
+			//	ImageTable::TransCoord(x,y,z);								// transform
 				newJoint.x = int(x);
 				newJoint.y = int(y);
 				newJoint.depth = (int)z; //newImage->image_depth[r][c];
