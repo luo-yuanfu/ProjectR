@@ -5,8 +5,8 @@
 #define SAMPLE_UV_NUM 10
 #define SAMPLE_THRESHOLD_NUM 30
 #define UV_RANGE 10
-#define MEANSHIFT
-//#define AVERAGE
+//#define MEANSHIFT
+#define AVERAGE
 
 #include "node.h"
 #include "image_table.h"

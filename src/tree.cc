@@ -361,6 +361,8 @@ void Tree::CalLeafLabel(Node* cur_node) {
     CalLeafLabel(cur_node->left_child_);
     CalLeafLabel(cur_node->right_child_);
   } else {
+  	////for debugging
+  	cout<<"pixels_ size: "<<cur_node->pixels_.size()<<endl;
 // cur_node is a leaf node
 #ifdef MEANSHIFT
     cur_node->MeanShift();
