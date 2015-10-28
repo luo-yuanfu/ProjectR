@@ -367,6 +367,8 @@ void Tree::CalLeafLabel(Node* cur_node) {
 #elif defined AVERAGE
     cur_node->Average();
 #endif
+    /////////for debugging
+    cout<<"finish computing label for one node"<<endl;
   }
 }
 //*****************************************************************************
