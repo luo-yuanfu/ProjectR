@@ -9,7 +9,7 @@ int main()
 	rf_regressor.BuildForest(train_path);
 
 	cout<<"finish training"<<endl;
-
+/*
 	string test_path="./test/pic/depth";
 	ImageTable *test_image_table;
 	test_image_table->LoadImages(test_path);
@@ -22,5 +22,6 @@ int main()
 		double error=rf_regressor.Evaluate(predict_result, test_image_table);
 		cout<<error<<endl;
 	}
+	*/
 	return 0;
 }

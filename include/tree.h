@@ -1,14 +1,16 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#define MAX_TREE_DEPTH 2
-#define SAMPLE_UV_NUM 100
-#define SAMPLE_THRESHOLD_NUM 50
+#define MAX_TREE_DEPTH 8
+#define SAMPLE_UV_NUM 10
+#define SAMPLE_THRESHOLD_NUM 30
 #define UV_RANGE 10
-#define MEANSHIFT
+//#define MEANSHIFT
+#define AVERAGE
 
 #include "node.h"
 #include "image_table.h"
+#include <ctime>
 
 //*******tree class
 class Tree{

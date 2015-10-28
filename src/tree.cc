@@ -47,13 +47,13 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int, int> u,
   int depth_u, depth_v;
   if (ux < 0 || uy < 0 || ux > I_width - 1 ||
       uy > I_height - 1) {  // pixel u out of image boundary
-    depth_u = 255;          // treat as background (white)
+    depth_u = 2000;         // treat as background (white)
   } else {
     depth_u = I[uy][ux];
   }
   if (vx < 0 || vy < 0 || vx > I_width - 1 ||
       vy > I_height - 1) {  // pixel v out of image boundary
-    depth_v = 255;          // treat as background (white)
+    depth_v = 2000;         // treat as background (white)
   } else {
     depth_v = I[vy][vx];
   }
@@ -85,13 +85,13 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int, int> u,
   int depth_u, depth_v;
   if (ux < 0 || uy < 0 || ux > I_width - 1 ||
       uy > I_height - 1) {  // pixel u out of image boundary
-    depth_u = 255;          // treat as background (white)
+    depth_u = 2000;         // treat as background (white)
   } else {
     depth_u = I[uy][ux];
   }
   if (vx < 0 || vy < 0 || vx > I_width - 1 ||
       vy > I_height - 1) {  // pixel v out of image boundary
-    depth_v = 255;          // treat as background (white)
+    depth_v = 2000;         // treat as background (white)
   } else {
     depth_v = I[vy][vx];
   }
@@ -110,8 +110,20 @@ void Tree::InitRoot(vector<Pixel> pixels) {
 // build the tree, and calculate the labels for the leaf nodes
 //*****************************************************************************
 void Tree::ConstructTree() {
+  clock_t begin_time, finish_time;
+
+  begin_time=clock();
   BuildTree(1, root_);
+  finish_time=clock();
+
+  cout<<"time for building one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+
+
+  begin_time=clock();
   CalLeafLabel(root_);
+  finish_time=clock();
+
+  cout<<"time for computing labels one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
 }
 //*****************************************************************************
 
@@ -120,17 +132,35 @@ void Tree::ConstructTree() {
 // build decision tree
 //*****************************************************************************
 void Tree::BuildTree(int depth, Node* cur_node) {
-  if (depth > MAX_TREE_DEPTH) return;
+  cout << "tree depth: " << depth << endl;
+
+  if (depth > MAX_TREE_DEPTH) {
+    //  	cout<<"return, depth: "<<depth<<endl;
+    return;
+  }
+  /*
+    clock_t begin_time;
+    clock_t finish_time;
+
+    clock_t begin_uv;
+    clock_t finish_uv;
+  */
+  ///////////for debug////////////////
+  //  cout<<"pixel num: "<<cur_node->pixels_.size()<<"  root x 0.005: "<<0.005 *
+  //  root_->pixels_.size()<<endl;
 
   // if there are no enough pixels in the node, we can stop going further
   if (cur_node->pixels_.size() < 0.005 * root_->pixels_.size()) return;
 
-  double max_info_gain = 0;  // the max information gained
+  cout<<"fdjfha"<<endl;
+
+  double max_info_gain = -999999999999;  // the max information gained
   std::pair<int, int> best_u, best_v;
   double best_threshold = 0;
 
   // find the best u v and threshold to split the pixels. currently select the
   // best from SAMPLE_NUM randomly sampled <u,v,threshold>
+  //  begin_uv=clock();
   for (int iter = 0; iter < SAMPLE_UV_NUM; iter++) {
     std::pair<int, int> u, v;
     double threshold;
@@ -139,7 +169,13 @@ void Tree::BuildTree(int depth, Node* cur_node) {
 
     RandomSample(u, v);
 
+    ///////////for debug////////////////
+    //    cout << "the "<<iter<<"th u,v"<<endl;
+    //    cout << "sample u: "<<u.first<<" "<<u.second<<endl;
+    //    cout << "sample v: "<<v.first<<" "<<v.second<<endl;
+
     // determine range of features, then decide threshold values
+    //    begin_time=clock();
     double max_feat = FeatureValue(cur_node->pixels_.at(0), u, v);
     double min_feat = FeatureValue(cur_node->pixels_.at(0), u, v);
     for (int i = 1; i < cur_node->pixels_.size(); i++) {
@@ -147,13 +183,17 @@ void Tree::BuildTree(int depth, Node* cur_node) {
       if (curr_feat < min_feat) min_feat = curr_feat;
       if (curr_feat > max_feat) max_feat = curr_feat;
     }
+    //    finish_time=clock();
+    //    cout<<"time for feature shuffle
+    //    "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+
     int sample_threshold_num = SAMPLE_THRESHOLD_NUM;
     // ensure SAMPLE_THRESHOLD_NUM < (max_feat - min_feat)
     if (SAMPLE_THRESHOLD_NUM > (max_feat - min_feat + 1)) {
-      std::cerr
+     /* std::cerr
           << __FILE__ << __LINE__
           << "SAMPLE_THRESHOLD_NUM is more than range of features. Aborting. "
-          << std::endl;
+          << std::endl;*/
       sample_threshold_num = int(max_feat - min_feat + 1);
       //	throw;
     }
@@ -162,55 +202,75 @@ void Tree::BuildTree(int depth, Node* cur_node) {
     for (int t = 0; t < feat_range; ++t) {
       candidate_threshold[t] = min_feat + t;
     }
-    std::random_shuffle(candidate_threshold.begin(), candidate_threshold.end());
-    int sample = 0;
-    for (int iter2 = 0; iter2 < sample_threshold_num; iter2++) {
+    //    begin_time=clock();
+    //    std::random_shuffle(candidate_threshold.begin(),
+    //    candidate_threshold.end());
+    //    finish_time=clock();
+    //    cout<<"time for random shuffle
+    //    "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
 
+    for (int iter2 = 0; iter2 < sample_threshold_num; iter2++) {
       int success = 0;
       double iter_threshold;
 
-      do {
-        if (sample > feat_range - 1) {
-          std::cerr << __FILE__ << __LINE__
-                    << " threshold samples exceed feature range. Abort."
-                    << std::endl;
-          throw;
+      iter_threshold = candidate_threshold[iter2];
+
+      //        clock_t begin_1;
+      //        clock_t finish_1;
+      //        begin_1=clock();
+      for (int i = 0; i < cur_node->pixels_.size(); i++) {
+        if (FeatureValue(cur_node->pixels_.at(i), u, v) < iter_threshold)
+          left_pixel.push_back(cur_node->pixels_.at(i));
+        else
+          right_pixel.push_back(cur_node->pixels_.at(i));
+      }
+      //        finish_1=clock();
+      //        cout << "time for haha
+      //        "<<(float(finish_1-begin_1))/CLOCKS_PER_SEC<<endl;
+
+      // check both left and right nodes have more than 1 pixel
+      if (left_pixel.size() > 1 && right_pixel.size() > 1) {
+        threshold = iter_threshold;
+        success = 1;
+      }
+
+      //    finish_time=clock();
+      //    cout<<"time for finding the threshold:
+      //    "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+
+      ///////////for debug////////////////
+      //      cout<<"find threshold: "<<threshold<<endl;
+
+      //      begin_time=clock();
+      // double info_gain = InformationGain(cur_node, left_pixel, right_pixel);
+      if (success) {
+        double info_gain = NegativeSSE(cur_node, left_pixel, right_pixel);
+        //     		finish_time=clock();
+        //   	    cout<<"time for NegativeSSE:
+        //   "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+
+        //    	    cout<<"calculated info_gain: "<<info_gain<<endl;
+
+        if (info_gain > max_info_gain) {
+          max_info_gain = info_gain;
+          best_u = u;
+          best_v = v;
+          best_threshold = threshold;
         }
-
-        iter_threshold = candidate_threshold[sample];
-
-        for (int i = 0; i < cur_node->pixels_.size(); i++) {
-          if (FeatureValue(cur_node->pixels_.at(i), u, v) < iter_threshold)
-            left_pixel.push_back(cur_node->pixels_.at(i));
-          else
-            right_pixel.push_back(cur_node->pixels_.at(i));
-        }
-
-        // check both left and right nodes have more than 1 pixel
-        if (left_pixel.size() > 1 && right_pixel.size() > 1) {
-          threshold=iter_threshold;
-          success = 1;
-          sample++;
-        } else {
-          sample++;
-        }
-
-      } while (success == 0);
-
-     // double info_gain = InformationGain(cur_node, left_pixel, right_pixel);
-      double info_gain=NegativeSSE(cur_node, left_pixel, right_pixel);
-      if (info_gain > max_info_gain) {
-        max_info_gain = info_gain;
-        best_u = u;
-        best_v = v;
-        best_threshold = threshold;
       }
 
       left_pixel.clear();
       right_pixel.clear();
     }
   }
-
+  /*
+    finish_uv=clock();
+    cout<<"time for all uv: "<<(float(finish_uv-begin_uv))/CLOCKS_PER_SEC<<endl;
+    ///////////for debug////////////////
+    cout<<"max info gain"<<max_info_gain<<endl;
+    cout << "best u: "<<best_u.first<<" "<<best_u.second<<endl;
+    cout << "bset v: "<<best_v.first<<" "<<best_v.second<<endl;
+  */
   Node* left_child = new Node();
   Node* right_child = new Node();
   for (int i = 0; i < cur_node->pixels_.size(); i++) {
@@ -230,9 +290,15 @@ void Tree::BuildTree(int depth, Node* cur_node) {
   cur_node->set_uv(best_u, best_v);
   cur_node->set_threshold(best_threshold);
 
+  ///////////for debug////////////////
+  //  cout<<"begin to build left child"<<endl;
   // build subtree for left and right children
   BuildTree(depth + 1, cur_node->left_child_);
+  //  cout<<"finish to build left child"<<endl;
+
+  //  cout<<"begin to build right child"<<endl;
   BuildTree(depth + 1, cur_node->right_child_);
+  //  cout<<"finish to build right child"<<endl;
 }
 //*****************************************************************************
 

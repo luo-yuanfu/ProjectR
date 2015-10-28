@@ -270,8 +270,13 @@ void Node::MeanShift()
 	  L[j].y = clustCent[biggestClust][j*3+1];
 	  L[j].depth = clustCent[biggestClust][j*3+2];
 	}
-
+/*
 	//call set_label() to set label_ for the leaf node after calculating the label
+	for(unsigned int j=0;j<Njoints;++j) {
+		cout<<"joint "<<j<<endl;
+	 	cout<<"x: "<<L[j].x<<" y: "<<L[j].y<<" depth: "<<L[j].depth<<endl;
+	}
+*/
 	set_label(L);
 }
 //*****************************************************************************
@@ -312,6 +317,7 @@ void Node::Average()
   }
 
   //call set_label() to set label_ for the leaf node after calculating the label
+
   set_label(L);
 }
 //*****************************************************************************

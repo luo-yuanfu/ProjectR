@@ -38,6 +38,8 @@ void RandomForest::BuildForest(string path)
     tree_num++;
 
 		trees_.push_back(tree);
+
+    
 	}
 }
 //*****************************************************************************
