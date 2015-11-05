@@ -220,7 +220,8 @@ ImageEntry * ImageTable::get_image(int index)
 {
 	if(index<0 || index >= images_.size())
 	{
-		cout<<"wrong image index"<<endl;
+		cout<<"wrong image index. index = "<<index<<endl;
+		//cout<<"images size = "<<images_.size()<<endl;
 		exit(-1);
 	}
 

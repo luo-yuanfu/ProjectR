@@ -76,13 +76,16 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int, int> u,
   int vx = x + v.first;
   int vy = y + v.second;
 
+
   //*** To edit based on ImageType defined in ImageTable Class
   // ImageType I = image_table_->images_[imgIdx]->image;
   // const unsigned int I_height = I.size();
   // const unsigned int I_width = I[0].size();
+
   int** I = test_image_table->images_[imgIdx]->image_depth;
   const unsigned int I_height = test_image_table->images_[imgIdx]->height;
   const unsigned int I_width = test_image_table->images_[imgIdx]->width;
+
   int depth_u, depth_v;
   if (ux < 0 || uy < 0 || ux > I_width - 1 ||
       uy > I_height - 1) {  // pixel u out of image boundary
@@ -90,12 +93,15 @@ double Tree::FeatureValue(Pixel piexl, std::pair<int, int> u,
   } else {
     depth_u = I[uy][ux];
   }
+
+
   if (vx < 0 || vy < 0 || vx > I_width - 1 ||
       vy > I_height - 1) {  // pixel v out of image boundary
     depth_v = 2000;         // treat as background (white)
   } else {
     depth_v = I[vy][vx];
   }
+
   return ((double)(depth_u - depth_v));
 }
 //*****************************************************************************
@@ -117,14 +123,14 @@ void Tree::ConstructTree() {
   BuildTree(1, root_);
   finish_time=clock();
 
-  cout<<"time for building one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+  //cout<<"time for building one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
 
 
   begin_time=clock();
   CalLeafLabel(root_);
   finish_time=clock();
 
-  cout<<"time for computing labels one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
+ // cout<<"time for computing labels one tree: "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
 }
 //*****************************************************************************
 
@@ -158,7 +164,7 @@ void Tree::BuildTree(int depth, Node* cur_node) {
 
   if (cur_node->pixels_.size() < MIN_LEAF_SIZE * root_->pixels_.size()) return;
 
-  cout<<"fdjfha"<<endl;
+  //cout<<"fdjfha"<<endl;
 
   double max_info_gain = -999999999999;  // the max information gained
   std::pair<int, int> best_u, best_v;
@@ -381,7 +387,7 @@ void Tree::CalLeafLabel(Node* cur_node) {
     CalLeafLabel(cur_node->right_child_);
   } else {
   	////for debugging
-  	cout<<"pixels_ size: "<<cur_node->pixels_.size()<<endl;
+  	//cout<<"pixels_ size: "<<cur_node->pixels_.size()<<endl;
 //    cout<<"current depth: "<<depth<<endl;
 // cur_node is a leaf node
 #ifdef MEANSHIFT
@@ -390,7 +396,7 @@ void Tree::CalLeafLabel(Node* cur_node) {
     cur_node->Average();
 #endif
     /////////for debugging
-    cout<<"finish computing label for one node"<<endl;
+    //cout<<"finish computing label for one node"<<endl;
   }
 }
 //*****************************************************************************

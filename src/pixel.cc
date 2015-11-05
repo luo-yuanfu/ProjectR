@@ -19,7 +19,7 @@ Pixel::Pixel(int image_index, PixelInfo info, ImageTable *image_table): info_(in
 
 
 //*****************************************************************************
-Pixel::Pixel(int image_index, PixelInfo info): info_(info)
+Pixel::Pixel(int image_index, PixelInfo info): image_index_(image_index),info_(info)
 {
 }
 //*****************************************************************************

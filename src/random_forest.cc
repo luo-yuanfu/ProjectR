@@ -145,174 +145,60 @@ vector<Pixel> RandomForest::SelectInput()
 vector <Offset> RandomForest::splitpixel(Tree * tmptree,Node * tmpnode,Pixel tmppixel,ImageTable* test_image_table)
 {
   vector <Offset> label;
-  while (tmpnode != NULL) {
+  while (tmpnode-> left_child_ != NULL) {  // while tmpnode not leaf node
             ////////////////
     if (tmptree->FeatureValue(tmppixel, tmpnode->u_, tmpnode->v_,test_image_table) <
         tmpnode->threshold_) {
-        label = tmpnode->get_label();
         tmpnode = tmpnode->left_child_;              
       } 
       else {
-        label = tmpnode->get_label();
         tmpnode = tmpnode->right_child_;            
       }
   }
+  label = tmpnode->get_label();
+
+  for(int i=0; i< label.size(); i++){
+    label.at(i).x = label.at(i).x+tmppixel.info_.x;
+    label.at(i).y = label.at(i).y+tmppixel.info_.y;
+    label.at(i).depth = label.at(i).depth + tmppixel.info_.depth;
+  }
+
   return label;
 }
-vector <Offset> RandomForest::meanshift(vector <Offset> label,vector<vector<PixelInfo> > joints_set)
-{
-    const unsigned int Njoints = label.size();
-    const unsigned int Npixels = joints_set.size();
-    const unsigned int Ndim = Njoints * 3;
 
-    // mean shift parameters
-    const double bandWidth = singleton::get().BANDWIDTH();
-    const double bandSq = bandWidth * bandWidth;
-    const double stopThresh = 1e-3 * bandWidth;
-    // concat all joint information to Ndim
-    vector<vector<int> > dataPts(Npixels, vector<int>(Ndim));
-    for (unsigned int i = 0; i < Npixels; ++i) {
-      for (unsigned int j = 0; j < Njoints; ++j) {
-        dataPts[i][j * 3] = joints_set.at(i).at(j).x;
-        dataPts[i][j * 3 + 1] = joints_set.at(i).at(j).y;
-        dataPts[i][j * 3 + 2] = joints_set.at(i).at(j).depth;
-      }
-    }
-    vector<Offset> L(Njoints);
-    unsigned int numInitPts = Npixels;
-    vector<int> initPtInds;
-    for (unsigned int i = 0; i < Npixels; ++i) {
-      initPtInds.push_back(i);
-    }
-    vector<int> beenVisitedFlag(Npixels);
-    int numClust = 0;
-    vector<vector<double> > clustCent;
-    vector<vector<int> > clusterVotes;
+//*****************************************************************************
+ vector <PixelInfo> RandomForest::average(vector<vector<PixelInfo> > joints_set) 
+ {
+ // does average method for joints separately 
+  // average on joint locations
+  const unsigned int Njoints = joints_set[0].size();
+  const unsigned int Npixels = joints_set.size();
 
-    vector<double> myMean(Ndim);
-    vector<double> myOldMean(Ndim);
-    while (numInitPts > 0) {
-      int tempInd = rand() % numInitPts;
-      int stInd = initPtInds[tempInd];
-      for (unsigned int i = 0; i < Ndim; ++i) {
-        myMean[i] = (double)dataPts[stInd][i];
-      }
-      vector<int> myMembers;
-      vector<int> thisClusterVotes(Npixels);
-      while (1) {
-        vector<double> sqDistToAll(Npixels);
-        for (unsigned int i = 0; i < Npixels; ++i) {
-          for (unsigned int j = 0; j < Ndim; ++i) {
-            sqDistToAll[i] += (double)(dataPts[i][j] - myMean[j]) *
-                              (dataPts[i][j] - myMean[j]);
-          }
-        }
-        vector<int> inInds;
-        for (unsigned int i = 0; i < Npixels; ++i) {
-          if (sqDistToAll[i] < bandSq) {
-            inInds.push_back(i);
-          }
-        }
-        for (unsigned int i = 0; i < inInds.size(); ++i) {
-          thisClusterVotes[i] = thisClusterVotes[i] + 1;
-        }
-        myOldMean = myMean;
-        for (unsigned int j = 0; j < Ndim; ++j) {
-          for (unsigned int i = 0; i < inInds.size(); ++i) {
-            myMean[j] += dataPts[inInds[i]][j];
-          }
-          myMean[j] /= inInds.size();
-        }
-        for (unsigned int i = 0; i < inInds.size(); ++i) {
-          myMembers.push_back(inInds[i]);
-        }
-        for (unsigned int i = 0; i < myMembers.size(); ++i) {
-          beenVisitedFlag[myMembers[i]] = 1;
-        }
-        // if mean does not move much, stop this cluster
-        double dist = 0.0;
-        for (unsigned int i = 0; i < Ndim; ++i) {
-          dist += (myMean[i] - myOldMean[i]) * (myMean[i] - myOldMean[i]);
-        }
-        dist = sqrt(dist);
-        if (dist < stopThresh) {
-          // check for merge posibilities
-          int mergeWith = 0;
-          for (unsigned int c = 0; c < numClust; ++c) {
-            double distToOther = 0.0;
-            for (unsigned int i = 0; i < Ndim; ++i) {
-              distToOther +=
-                  (myMean[i] - clustCent[c][i]) * (myMean[i] - clustCent[c][i]);
-            }
-            if (distToOther < bandWidth / 2) {
-              mergeWith = c;
-              break;
-            }
-          }
+  vector<PixelInfo> L(Njoints);
 
-          if (mergeWith > 0) {
-            for (unsigned int i = 0; i < Ndim; ++i) {
-              clustCent[mergeWith][i] =
-                  0.5 * myMean[i] + clustCent[mergeWith][i];
-              for (unsigned int i = 0; i < Npixels; ++i) {
-                clusterVotes[mergeWith][i] =
-                    clusterVotes[mergeWith][i] + thisClusterVotes[i];
-              }
-            }
-          } else {
-            numClust += 1;
-            clustCent.push_back(myMean);
-            clusterVotes.push_back(thisClusterVotes);
-          }
+  for(unsigned int j=0;j<Njoints;++j) {
 
-          break;
-        }
-      }  // while(1)
+    double mu_x = 0.0;
+    double mu_y = 0.0;
+    double mu_depth = 0.0;
 
-      initPtInds.clear();
-      for (unsigned int i = 0; i < Npixels; ++i) {
-        if (beenVisitedFlag[i] == 0) {
-          initPtInds.push_back(i);
-        }
-      }
-      numInitPts = initPtInds.size();
-    }  // while(numInitPts > 0)
-    // determine data cluster membership
-    vector<int> data2cluster(Npixels);
-    for (unsigned int i = 0; i < Npixels; ++i) {
-      unsigned int maxVote = 0;
-      for (unsigned int c = 0; c < numClust; ++c) {
-        if (clusterVotes[c][i] > maxVote) {
-          data2cluster[i] = c;
-        }
-      }
+    for(unsigned int i=0;i<Npixels;++i) {
+      mu_x += joints_set[i][j].x;
+      mu_y += joints_set[i][j].y;
+      mu_depth += joints_set[i][j].depth;
     }
 
-    // determine which cluster has most votes (K=1), to set as node label
-    vector<int> clusterSize(numClust);
-    for (unsigned int c = 0; c < numClust; ++c) {
-      for (unsigned int i = 0; i < Npixels; ++i) {
-        if (data2cluster[i] == c) {
-          clusterSize[c] = clusterSize[c] + 1;
-        }
-      }
-    }
+    mu_x /= Npixels;
+    mu_y /= Npixels;
+    mu_depth /= Npixels;
 
-    int maxSize = 0;
-    int biggestClust = 0;
-    for (unsigned int c = 0; c < numClust; ++c) {
-      if (clusterSize[c] > maxSize) {
-        biggestClust = c;
-      }
-    }
-
-    for (unsigned int j = 0; j < Njoints; ++j) {
-      L[j].x = clustCent[biggestClust][j * 3];
-      L[j].y = clustCent[biggestClust][j * 3 + 1];
-      L[j].depth = clustCent[biggestClust][j * 3 + 2];
-    }
-    return L;
+    L[j].x = mu_x;
+    L[j].y = mu_y;
+    L[j].depth = mu_depth;
+  }
+  return L;
 }
+
 
 //to do:  predict the labels for all the images contained in test_image_table using  
 //the random forest we get
@@ -334,10 +220,10 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
   vector<Offset> label;
   vector<vector<PixelInfo> > images_joints;
   // for each image
-  for (int i = 0; test_image_table->images_.size(); i++) {
+  for (int i = 0; i< test_image_table->images_.size(); i++) {
     tmpentry = test_image_table->get_image(i);
     // iter the forest;
-    for (int j = 0; i < trees_.size(); i++) {
+    for (int j = 0; j < trees_.size(); j++) {
       tmptree = trees_.at(j);
       // split the pixels to different leaf
       for (int x = tmpentry->bounding_box.x;
@@ -351,12 +237,13 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
           temp_pixel_info.y=y;
           temp_pixel_info.depth=tmpentry->image_depth[y][x];
           Pixel tmppixel(i, temp_pixel_info);
-          splitpixel(tmptree,tmpnode,tmppixel,test_image_table);
+          vector <Offset> temp_label = splitpixel(tmptree,tmpnode,tmppixel,test_image_table);
           ///////////////meanshift first then average//////////////////////////
-          joints_set.push_back(label);
+          joints_set.push_back(temp_label);
         }
       }
-      vector <Offset> L=meanshift(label,joints_set);
+      
+      vector <Offset> L=average(joints_set);
       if(j==0){
         images_joints.push_back(L);
       }
@@ -367,11 +254,15 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
           images_joints.at(i).at(k).depth=(images_joints.at(i).at(k).depth*j+L.at(k).depth)/(j+1);
         }
       }
+
       joints_set.clear();
+      
     }
+
 
   }
   return images_joints;
+
 
 }
 //*****************************************************************************
