@@ -1,10 +1,7 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#define MAX_TREE_DEPTH 8
-#define SAMPLE_UV_NUM 10
-#define SAMPLE_THRESHOLD_NUM 30
-#define UV_RANGE 10
+
 //#define MEANSHIFT
 #define AVERAGE
 

@@ -1,9 +1,6 @@
 #ifndef RANDOM_FOREST_H_
 #define RANDOM_FOREST_H_
 
-#define MAX_TREE_NUM 1
-#define IMG_SUBSET_SIZE 20
-#define PX_SUBSET_SIZE 2000
 
 #include "tree.h"
 #include <cmath>

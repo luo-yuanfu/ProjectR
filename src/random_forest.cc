@@ -1,4 +1,5 @@
 #include "random_forest.h"
+#include "singleton.h"
 
 
 //to do: delete memory if have dynamic allocated
@@ -20,6 +21,7 @@ void RandomForest::BuildForest(string path)
 	PreprocessData(path);
 	
   int tree_num=0;
+  int MAX_TREE_NUM = singleton::get().MAX_TREE_NUM();
 	while(trees_.size()<MAX_TREE_NUM)
 	{
 		Tree * tree=new Tree();
@@ -61,10 +63,16 @@ void RandomForest::PreprocessData(string path)
 //*****************************************************************************
 vector<Pixel> RandomForest::SelectInput()
 {
+  int IMG_SUBSET_SIZE = singleton::get().IMG_SUBSET_SIZE();
+  int PX_SUBSET_SIZE = singleton::get().PX_SUBSET_SIZE();
 	vector<Pixel> input_px;
 
   // for each tree, sample from image with replacement
   const unsigned int Ntraining = image_table_->images_.size();
+  if(IMG_SUBSET_SIZE > Ntraining) {
+    cout<<"IMG_SUBSET_SIZE more than Ntraining"<<endl;
+    throw;
+  }
 	// shuffle training data
 	vector<int> train_img_idx(Ntraining);
 	for(int i=0;i<Ntraining;i++) {
@@ -91,6 +99,10 @@ vector<Pixel> RandomForest::SelectInput()
 	  int height = bbox.height;
 //	  int end_x = start_x + width - 1;
 //	  int end_y = start_y + width - 1;
+    if(PX_SUBSET_SIZE > width*height) {
+      cout<<"PX_SUBSET_SIZE more than bounding box pixels"<<endl;
+      throw;
+    }
 
 	  // put bounding box pixels into a vector, then shuffle that vector
 	  vector<int> px_idx(height*width);
@@ -154,7 +166,7 @@ vector <Offset> RandomForest::meanshift(vector <Offset> label,vector<vector<Pixe
     const unsigned int Ndim = Njoints * 3;
 
     // mean shift parameters
-    const double bandWidth = BANDWIDTH;
+    const double bandWidth = singleton::get().BANDWIDTH();
     const double bandSq = bandWidth * bandWidth;
     const double stopThresh = 1e-3 * bandWidth;
     // concat all joint information to Ndim

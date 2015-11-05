@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 
-#define BANDWIDTH 0.75
 
 //*******node class: the node in the tree
 class Node{

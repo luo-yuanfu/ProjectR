@@ -1,5 +1,6 @@
 #include "tree.h"
 #include <stdlib.h>
+#include "singleton.h"
 //*****************************************************************************
 Tree::Tree() {
   root_ = NULL;
@@ -134,6 +135,9 @@ void Tree::ConstructTree() {
 void Tree::BuildTree(int depth, Node* cur_node) {
   cout << "tree depth: " << depth << endl;
 
+  int MAX_TREE_DEPTH= singleton::get().MAX_TREE_DEPTH();
+  int SAMPLE_UV_NUM= singleton::get().SAMPLE_UV_NUM();
+  int SAMPLE_THRESHOLD_NUM= singleton::get().SAMPLE_THRESHOLD_NUM();
   if (depth > MAX_TREE_DEPTH) {
     //  	cout<<"return, depth: "<<depth<<endl;
     return;
@@ -150,7 +154,9 @@ void Tree::BuildTree(int depth, Node* cur_node) {
   //  root_->pixels_.size()<<endl;
 
   // if there are no enough pixels in the node, we can stop going further
-  if (cur_node->pixels_.size() < 0.005 * root_->pixels_.size()) return;
+  double MIN_LEAF_SIZE = singleton::get().MIN_LEAF_SIZE();
+
+  if (cur_node->pixels_.size() < MIN_LEAF_SIZE * root_->pixels_.size()) return;
 
   cout<<"fdjfha"<<endl;
 
@@ -203,8 +209,7 @@ void Tree::BuildTree(int depth, Node* cur_node) {
       candidate_threshold[t] = min_feat + t;
     }
     //    begin_time=clock();
-    //    std::random_shuffle(candidate_threshold.begin(),
-    //    candidate_threshold.end());
+    std::random_shuffle(candidate_threshold.begin(), candidate_threshold.end());
     //    finish_time=clock();
     //    cout<<"time for random shuffle
     //    "<<(float(finish_time-begin_time))/CLOCKS_PER_SEC<<endl;
@@ -340,6 +345,7 @@ double Tree::NegativeSSE(Node* cur_node, vector<Pixel> left_pixel,
 // to do: randomly sample a legal pair <u,v>
 //*****************************************************************************
 void Tree::RandomSample(std::pair<int, int>& u, std::pair<int, int>& v) {
+  int UV_RANGE= singleton::get().UV_RANGE();
   const int max_uv = UV_RANGE;  // +- 10 pixels boundary to search for uv
   u.first = rand() % (2 * max_uv + 1) - max_uv;
   u.second = rand() % (2 * max_uv + 1) - max_uv;
@@ -357,12 +363,26 @@ void Tree::RandomSample(std::pair<int, int>& u, std::pair<int, int>& v) {
 void Tree::CalLeafLabel(Node* cur_node) {
   // assume when building tree, when splitting, always create left and right
   // child
+
+  //the following is for calculating the depth, just for debuging:
+  /*
+  Node * temp=cur_node;
+  int depth=1;
+  while(temp!=NULL) {
+    depth++;
+    temp=temp->parent_;
+  }*/
+
+
+
+
   if (cur_node->left_child_ != NULL) {  // cur_node is not leaf node
     CalLeafLabel(cur_node->left_child_);
     CalLeafLabel(cur_node->right_child_);
   } else {
   	////for debugging
   	cout<<"pixels_ size: "<<cur_node->pixels_.size()<<endl;
+//    cout<<"current depth: "<<depth<<endl;
 // cur_node is a leaf node
 #ifdef MEANSHIFT
     cur_node->MeanShift();

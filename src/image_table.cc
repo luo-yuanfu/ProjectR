@@ -1,9 +1,10 @@
 #include "image_table.h"
-
+#include "singleton.h"
 //*****************************************************************************
 ImageTable::ImageTable()
 {
-	delta=0.05;				//default 0.05
+
+	delta = singleton::get().DELTA();
 }
 
 ImageTable::ImageTable(float _delta)
@@ -14,7 +15,7 @@ ImageTable::ImageTable(float _delta)
 
 ImageTable::ImageTable(string path)
 {
-	delta=0.05;
+	delta=singleton::get().DELTA();
 	LoadImages(path);
 }
 

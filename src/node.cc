@@ -1,5 +1,6 @@
 #include "node.h"
 #include "math.h"
+#include "singleton.h"
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>
 
@@ -125,7 +126,8 @@ void Node::MeanShift()
         const unsigned int Ndim = Njoints * 3;
 
 	// mean shift parameters
-	const double bandWidth = BANDWIDTH;
+    const double bandWidth = singleton::get().BANDWIDTH();
+
 	const double bandSq = bandWidth * bandWidth;
 	const double stopThresh = 1e-3*bandWidth;
 	// concat all joint information to Ndim
