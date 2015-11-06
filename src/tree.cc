@@ -1,6 +1,8 @@
 #include "tree.h"
-#include <stdlib.h>
 #include "singleton.h"
+#include <stdlib.h>
+#include <iomanip>
+
 //*****************************************************************************
 Tree::Tree() {
   root_ = NULL;
@@ -300,6 +302,8 @@ void Tree::BuildTree(int depth, Node* cur_node) {
   // store u,v,and threshold for current node
   cur_node->set_uv(best_u, best_v);
   cur_node->set_threshold(best_threshold);
+
+  cout<<setw(8)<<best_u.first<<setw(8)<<best_u.second<<setw(8)<<best_v.first<<setw(8)<<best_v.second<<setw(8)<<best_threshold<<setw(8)<<cur_node->pixels_.size()<<endl;
 
   ///////////for debug////////////////
   //  cout<<"begin to build left child"<<endl;
