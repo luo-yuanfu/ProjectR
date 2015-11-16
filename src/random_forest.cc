@@ -6,10 +6,17 @@
 //*****************************************************************************
 RandomForest::~RandomForest()
 {
+  int MAX_TREE_NUM = singleton::get().MAX_TREE_NUM();
 	if(image_table_!=NULL)
 	{
 		delete image_table_;
+    image_table_=NULL;
 	}
+  for(int i=0; i<MAX_TREE_NUM; i++)
+  {
+    delete trees_.at(i);
+    trees_.at(i)=NULL;
+  }
 }
 //*****************************************************************************
 
