@@ -3,7 +3,7 @@
 #train : offset =0
 rm -r train_set
 mkdir train_set
-Ntrain=1000
+Ntrain=1200
 for((i=0;i<Ntrain;i++))
 do
 

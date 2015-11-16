@@ -4,7 +4,7 @@ SRCDIR = src
 BINDIR = bin
 
 #### opencv 
-CFLAGS = `pkg-config --cflags opencv` -pg
+CFLAGS = `pkg-config --cflags opencv` -pg -O3
 LIBS = `pkg-config --libs opencv`
 ####
 

@@ -219,12 +219,16 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
  // Pixel tmppixel;
   vector<Offset> label;
   vector<vector<PixelInfo> > images_joints;
+
+//  cout<<"tree size: "<<trees_.size()<<endl;
   // for each image
   for (int i = 0; i< test_image_table->images_.size(); i++) {
     tmpentry = test_image_table->get_image(i);
     // iter the forest;
     for (int j = 0; j < trees_.size(); j++) {
       tmptree = trees_.at(j);
+  //    cout<<j<<"th tree address: "<<tmptree<<endl;
+  //    cout<<"left child node u_.first: "<<tmptree->root_->left_child_->u_.first<<endl;
       // split the pixels to different leaf
       for (int x = tmpentry->bounding_box.x;
            x < tmpentry->bounding_box.width + tmpentry->bounding_box.x; x++) {
@@ -244,15 +248,26 @@ vector <vector<PixelInfo> > RandomForest::Predict(ImageTable* test_image_table)
       }
       
       vector <Offset> L=average(joints_set);
+     
+  //        cout<<"*** Lable, first joint, x offset: "<<L.at(0).x<<endl;
+        
+
       if(j==0){
         images_joints.push_back(L);
+
+  //        cout<<"Lable, first joint, x offset: "<<L.at(0).x<<endl;
       }
       else{
-        for(int k=0;k<label.size();k++){
+  //        cout<<"before , first joint, x offset: "<<L.at(0).x<<endl;
+ //         cout<<"    average: "<<images_joints.at(i).at(0).x<<endl;
+        
+        for(int k=0;k<4;k++){//modify 4 to a variable in the future
           images_joints.at(i).at(k).x=(images_joints.at(i).at(k).x*j+L.at(k).x)/(j+1);
           images_joints.at(i).at(k).y=(images_joints.at(i).at(k).y*j+L.at(k).y)/(j+1);
           images_joints.at(i).at(k).depth=(images_joints.at(i).at(k).depth*j+L.at(k).depth)/(j+1);
         }
+  //        cout<<"after , first joint, x offset, average: "<<images_joints.at(i).at(0).x<<endl;
+        
       }
 
       joints_set.clear();
