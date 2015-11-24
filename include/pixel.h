@@ -5,25 +5,26 @@
 
 using namespace std;
 
-typedef PixelInfo Offset; //offset has the same data structure with PixelInfo
+typedef PixelInfo Offset;  // offset has the same data structure with PixelInfo
 
 //*******pixel class
-class Pixel{
-public:
+class Pixel {
+ public:
+  PixelInfo info_;
 
-	PixelInfo info_;
+  int image_index_;  // the index of the image the pixel belongs to; for
+                     // calculating the neighbors
 
-	int image_index_;//the index of the image the pixel belongs to; for calculating the neighbors
+  vector<Offset> label_;  // label is the vector of offset; offset is the
+                          // difference between pixel and joints
 
-	vector <Offset> label_;// label is the vector of offset; offset is the difference between pixel and joints
+  Pixel();
+  Pixel(int image_index, PixelInfo info, ImageTable *image_table);
+  Pixel(int image_index, PixelInfo info);
+  ~Pixel();
 
-	Pixel();
-	Pixel(int image_index, PixelInfo info, ImageTable *image_table);
-	Pixel(int image_index, PixelInfo info);
-	~Pixel();
-
-	void CalLabel(ImageTable *image_table);//calculate the labels for the pixels
+  void CalLabel(ImageTable *image_table);  // calculate the labels for the
+                                           // pixels
 };
-
 
 #endif
