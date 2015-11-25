@@ -1,10 +1,10 @@
 ================================================================================
 DESCRIPTION
 ================================================================================
-This repository contains the source code for the final project of CS5340 at NUS, in Semester 1, 2015. It implements the zebrafish pose estimation from depth images using random forest.
+This repository contains the source code for the final project of Module CS5340 at NUS, in Semester 1, 2015. It implements the zebrafish pose estimation from depth images using random forest.
 
-You can read a better formatted readme file in the following github link:
-https://github.com/luo-yuanfu/ProjectR
+You can read a better formatted README file in the following github link:
+https://github.com/luo-yuanfu/Random-Forest-Regressor
 
 
 
@@ -24,11 +24,11 @@ General: GNU make is required for building
 ================================================================================
 USAGES
 ================================================================================
-Go to the root directory of this package, run the following to build the package:
+Go to the root directory of this package, run the following command in the command line to build the package:
 
 	make
 
-Then run the following command to train random forest and get the pose estimations given by the random forest:
+Then run the following command to train random forest and get the pose estimations given by the random forest (This will take about 8 hours to run. If you want to have a quick run, read the OTHERS section in this file):
 
 	./bin/random_forest_regressor
 
@@ -86,8 +86,8 @@ test/extract_test.sh 	  Shell file used to extract images from test/pic to test/
 ========================================================================
 OTHERS
 ========================================================================
-The current parameter setting in include/parameters.dat is used for generating the best result we got. For a quick run, you can set the parameters as following.
-And you also need to edit the train/extract_train.sh and test/extract_test.sh files to extract the correct number of images. (10 training images and 10 testing images for this case)
+The current parameter setting in include/parameters.dat is used for generating the best result we got, which takes about 8 hours' running time. For a quick run, you can set the parameters relative small. The following parameter setting gives an example for a quick run.
+And you also need to edit the train/extract_train.sh and test/extract_test.sh files to extract the correct number of images. (10 training images and 10 testing images for the following example)
 ```
 MAX_TREE_NUM		2
 IMG_SUBSET_SIZE		4
